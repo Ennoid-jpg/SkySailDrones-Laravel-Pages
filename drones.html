@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SkySail Drones - Browse Drones</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png">
+    
+    <!-- Fonts - Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-slate-900 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="./index.html">
+                        <img src="./images/logolight.png" alt="SkySail Logo" class="h-12 w-auto">
+                    </a>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="./index.html" class="text-white hover:text-gray-300 transition">Home</a>
+                    <a href="./login.html" class="text-white hover:text-gray-300 transition">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Sidebar -->
+                <div class="lg:w-64 flex-shrink-0">
+                    <div class="bg-white rounded-xl shadow-lg p-6 sticky top-4">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Categories</h3>
+                        <nav class="space-y-2">
+                            <a href="./drones.html" class="block px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white transition">
+                                View All Drones
+                            </a>
+                            <a href="./drones.html" class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                                Consumer
+                            </a>
+                            <a href="./drones.html" class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                                Enterprise
+                            </a>
+                            <a href="./drones.html" class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                                Agriculture
+                            </a>
+                            <a href="./drones.html" class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                                Cinematic
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1">
+                    <!-- Search Bar -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                        <form class="flex flex-col md:flex-row gap-4" onsubmit="alert('This is a static demo. Search requires backend connection.'); return false;">
+                            <div class="flex-1">
+                                <input type="text" 
+                                       name="search" 
+                                       placeholder="Search drones by name, brand, or description..." 
+                                       class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                            </div>
+                            <button type="submit" 
+                                    class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Search
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Drones Grid - Mock Data -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Sample Drone Card 1 -->
+                        <div class="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="relative h-48 bg-gray-200 overflow-hidden">
+                                <img src="./drone-images/1718431536_DJI Mavic 3 pro.jpg" 
+                                     alt="DJI Mavic 3 Pro" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='./images/drone.png'">
+                                <div class="absolute top-4 right-4">
+                                    <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-900">
+                                        Consumer
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition">
+                                    DJI Mavic 3 Pro
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-2">DJI</p>
+                                <p class="text-gray-700 text-sm mb-4">Professional aerial photography drone with Hasselblad camera</p>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-2xl font-bold text-purple-600">₱15,000</p>
+                                        <p class="text-xs text-gray-500">per day</p>
+                                    </div>
+                                    <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sample Drone Card 2 -->
+                        <div class="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="relative h-48 bg-gray-200 overflow-hidden">
+                                <img src="./drone-images/1718638106_DJI Mini 4 Pro .jpg" 
+                                     alt="DJI Mini 4 Pro" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='./images/drone.png'">
+                                <div class="absolute top-4 right-4">
+                                    <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-900">
+                                        Consumer
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition">
+                                    DJI Mini 4 Pro
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-2">DJI</p>
+                                <p class="text-gray-700 text-sm mb-4">Compact and portable drone perfect for travel photography</p>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-2xl font-bold text-purple-600">₱8,000</p>
+                                        <p class="text-xs text-gray-500">per day</p>
+                                    </div>
+                                    <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sample Drone Card 3 -->
+                        <div class="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="relative h-48 bg-gray-200 overflow-hidden">
+                                <img src="./drone-images/1718944550_DJI AGRAS.webp" 
+                                     alt="DJI Agras" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='./images/drone.png'">
+                                <div class="absolute top-4 right-4">
+                                    <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-900">
+                                        Agriculture
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition">
+                                    DJI Agras T30
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-2">DJI</p>
+                                <p class="text-gray-700 text-sm mb-4">Agricultural spraying drone for precision farming</p>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-2xl font-bold text-purple-600">₱25,000</p>
+                                        <p class="text-xs text-gray-500">per day</p>
+                                    </div>
+                                    <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

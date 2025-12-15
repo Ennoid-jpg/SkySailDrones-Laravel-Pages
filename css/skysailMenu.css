@@ -1,0 +1,74 @@
+
+body {
+  height: 100vh;
+  background-image: url('../imgBG/image-12.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+.text-wrapper{
+  background: linear-gradient(273deg, rgba(128, 128, 128, 0.8) 12.5%, rgba(255, 255, 255, 0.8) 100%);
+  -webkit-background-clip: text !important;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  font-size: 4vw;
+  text-align: left;
+  letter-spacing: 0;
+  line-height: 1.2;
+  margin: 20px 0;
+  margin-left: 15vw;
+}
+
+@media (max-width: 768px) {
+  .text-wrapper {
+    font-size: 6vw;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) { 
+  .text-wrapper {
+    font-size: 8vw;
+    text-align: center;
+  }
+}
+@media (max-width: 768px) {
+  .text-wrapper {
+    font-size: 6vw;
+    text-align: center;
+  }
+
+  .navbar-brand img {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 576px) { 
+  .text-wrapper {
+    color: #fff;
+    font-size: 8vw;
+    text-align: center;
+  }
+
+  .navbar-brand img {
+    max-width: 150px;
+  }
+}
+
+
+.main-content {
+  padding-top: 50px; /* Add padding to ensure it's not cut off */
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.book-now {
+  margin-top: 20px;
+}

@@ -1,0 +1,357 @@
+.menu {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.menu .div {
+  background-color: #ffffff;
+  overflow: hidden;
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+}
+
+.menu .overlap {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  top: 0;
+  left: 0;
+  background-image: url(../img/pexels-eberhard-grossgasteiger-1670187-1.png);
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.menu .overlap-group {
+  position: absolute;
+  width: 1920px;
+  height: 852px;
+  top: 0;
+  left: 0;
+}
+
+.menu .image {
+  width: 714px;
+  height: 605px;
+  top: 247px;
+  left: 320px;
+  position: absolute;
+  object-fit: cover;
+}
+
+.menu .pngtreerealistic {
+  width: 1034px;
+  height: 413px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  object-fit: cover;
+}
+
+.menu .img {
+  width: 947px;
+  height: 462px;
+  left: 973px;
+  position: absolute;
+  top: 0;
+  object-fit: cover;
+}
+
+.menu .text-wrapper {
+  position: absolute;
+  top: 68px;
+  left: 1569px;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: #000000;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .text-wrapper-2 {
+  left: 1494px;
+  position: absolute;
+  top: 68px;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: #000000;
+  font-size: 24px;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .help {
+  left: 1365px;
+  position: absolute;
+  top: 68px;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: #000000;
+  font-size: 24px;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .text-wrapper-3 {
+  position: absolute;
+  top: 68px;
+  left: 1740px;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: #000000;
+  font-size: 24px;
+  text-align: right;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .image-removebg {
+  position: absolute;
+  width: 178px;
+  height: 93px;
+  top: 24px;
+  left: 124px;
+  object-fit: cover;
+}
+
+.menu .p {
+  position: absolute;
+  width: 686px;
+  top: 272px;
+  left: 1122px;
+  background: linear-gradient(
+    180deg,
+    rgb(116.88, 69.64, 69.64) 12.5%,
+    rgb(184.88, 136.35, 136.35) 25%,
+    rgb(178.2, 126.97, 126.97) 100%
+  );
+  -webkit-background-clip: text !important;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: transparent;
+  font-size: 96px;
+  text-align: right;
+  letter-spacing: 0;
+  line-height: 110px;
+}
+
+.menu .drag-up-to-see-more {
+  position: absolute;
+  width: 212px;
+  top: 930px;
+  left: 854px;
+  background: linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(153, 145.99, 145.99) 100%);
+  -webkit-background-clip: text !important;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: transparent;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .overlap-2 {
+  position: absolute;
+  width: 1px;
+  height: 71px;
+  top: 1009px;
+  left: 960px;
+}
+
+.menu .line {
+  position: absolute;
+  width: 1px;
+  height: 62px;
+  top: 9px;
+  left: 0;
+  object-fit: cover;
+}
+
+.menu .line-2 {
+  position: absolute;
+  width: 1px;
+  height: 71px;
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
+
+.menu .text-wrapper-4 {
+  position: absolute;
+  width: 212px;
+  top: 1163px;
+  left: 858px;
+  font-family: "Armata-Regular", Helvetica;
+  font-weight: 400;
+  color: #ffffff;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .frame {
+  width: 345px;
+  top: 1548px;
+  left: 787px;
+  box-shadow: -4px 4px 4px 3px #00000080;
+  position: absolute;
+  height: 393px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.menu .div-wrapper {
+  position: absolute;
+  width: 345px;
+  height: 100px;
+  top: 293px;
+  left: -1px;
+  background-color: #b8b8b8;
+}
+
+.menu .text-wrapper-5 {
+  position: absolute;
+  top: 32px;
+  left: 64px;
+  font-family: "Saira Condensed-Bold", Helvetica;
+  font-weight: 700;
+  color: #000000;
+  font-size: 28px;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .image-2 {
+  width: 345px;
+  height: 309px;
+  top: -1392px;
+  left: -20683px;
+  position: absolute;
+  object-fit: cover;
+}
+
+.menu .frame-2 {
+  width: 344px;
+  top: 1254px;
+  left: 1920px;
+  background-color: #ffffff;
+  box-shadow: -4px 4px 4px #00000080;
+  position: absolute;
+  height: 393px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.menu .overlap-3 {
+  position: absolute;
+  width: 350px;
+  height: 311px;
+  top: -1100px;
+  left: -21816px;
+}
+
+.menu .rectangle {
+  position: absolute;
+  width: 345px;
+  height: 293px;
+  top: 18px;
+  left: 0;
+  object-fit: cover;
+}
+
+.menu .image-3 {
+  width: 350px;
+  height: 311px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  object-fit: cover;
+}
+
+.menu .text-wrapper-6 {
+  position: absolute;
+  top: 32px;
+  left: 74px;
+  font-family: "Saira Condensed-Bold", Helvetica;
+  font-weight: 700;
+  color: #000000;
+  font-size: 28px;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .frame-3 {
+  width: 345px;
+  top: 1255px;
+  left: -345px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 4px 1px #00000080;
+  position: absolute;
+  height: 393px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.menu .image-4 {
+  width: 357px;
+  height: 293px;
+  top: -1083px;
+  left: -19551px;
+  position: absolute;
+  object-fit: cover;
+}
+
+.menu .text-wrapper-7 {
+  position: absolute;
+  top: 32px;
+  left: 101px;
+  font-family: "Saira Condensed-Bold", Helvetica;
+  font-weight: 700;
+  color: #050000;
+  font-size: 28px;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.menu .text-wrapper-8 {
+  position: absolute;
+  width: 353px;
+  top: 1162px;
+  left: 2269px;
+  font-family: "Saira Condensed-Bold", Helvetica;
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 64px;
+  letter-spacing: 0;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.menu .text-wrapper-9 {
+  position: absolute;
+  width: 554px;
+  top: 1842px;
+  left: 2168px;
+  -webkit-text-stroke: 1px #000000;
+  font-family: "Saira Condensed-Bold", Helvetica;
+  font-weight: 700;
+  color: #eff0ff;
+  font-size: 40px;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: normal;
+  text-decoration: underline;
+}
