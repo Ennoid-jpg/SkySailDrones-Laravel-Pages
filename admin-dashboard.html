@@ -46,46 +46,224 @@
         </div>
       </header>
 
-      <main class="flex-1 px-6 py-8">
-        <h1 class="text-3xl font-semibold mb-2">Admin Dashboard</h1>
-        <p class="text-slate-300 mb-6">
-          This page is only accessible to users with the <span class="font-semibold">admin</span> role.
-        </p>
-
-        <div class="grid gap-6 md:grid-cols-3">
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">Users</h2>
-            <p class="text-sm text-slate-300">
-              Here you can link to your existing admin features for managing users in your main Laravel app.
+      <main class="flex-1 px-6 py-8 space-y-8">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 class="text-3xl font-semibold mb-1">Admin Dashboard</h1>
+            <p class="text-slate-300 text-sm">
+              This page is only accessible to users with the <span class="font-semibold">admin</span> role.
             </p>
-          </section>
-
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">Drones</h2>
-            <p class="text-sm text-slate-300">
-              Add links or content for managing drones, inventory, and other admin‑only tools.
-            </p>
-          </section>
-
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">Bookings</h2>
-            <p class="text-sm text-slate-300">
-              Surface key booking information or shortcuts to your Hostinger/Laravel admin panels.
-            </p>
-          </section>
+          </div>
         </div>
+
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Total Drones</p>
+              <p id="stat-total-drones" class="text-3xl font-bold mt-2">–</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-sky-500/15 text-sky-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Total Users</p>
+              <p id="stat-total-users" class="text-3xl font-bold mt-2">–</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-emerald-500/15 text-emerald-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Total Bookings</p>
+              <p id="stat-total-bookings" class="text-3xl font-bold mt-2">–</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-purple-500/15 text-purple-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Pending Bookings</p>
+              <p id="stat-pending-bookings" class="text-3xl font-bold mt-2">–</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-amber-500/15 text-amber-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Low Stock Drones</p>
+              <p id="stat-low-stock" class="text-3xl font-bold mt-2">–</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-red-500/15 text-red-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 rounded-xl border border-slate-800 p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-400">Total Revenue</p>
+              <p id="stat-total-revenue" class="text-3xl font-bold mt-2">₱0.00</p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-indigo-500/15 text-indigo-300 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent bookings + Low stock -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-lg font-semibold">Recent Bookings</h2>
+            </div>
+            <div id="recent-bookings" class="space-y-3 text-sm">
+              <p class="text-slate-400 text-sm">Loading recent bookings...</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-lg font-semibold">Low Stock Alert</h2>
+            </div>
+            <div id="low-stock-drones" class="space-y-3 text-sm">
+              <p class="text-slate-400 text-sm">Loading low stock drones...</p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 
     <script>
-      // Fill in user label
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const DASH_API = API_BASE + "/api-admin-dashboard.php";
+
+      function formatMoney(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      async function loadDashboard() {
+        const bookingsEl = document.getElementById("recent-bookings");
+        const lowStockEl = document.getElementById("low-stock-drones");
+
+        bookingsEl.innerHTML = '<p class="text-slate-400 text-sm">Loading recent bookings...</p>';
+        lowStockEl.innerHTML = '<p class="text-slate-400 text-sm">Loading low stock drones...</p>';
+
+        try {
+          const res = await fetch(DASH_API);
+          const data = await res.json();
+
+          if (!res.ok || !data.success) throw new Error(data.message || "Failed to load dashboard data");
+
+          const s = data.stats || {};
+          document.getElementById("stat-total-drones").textContent = s.total_drones ?? "0";
+          document.getElementById("stat-total-users").textContent = s.total_users ?? "0";
+          document.getElementById("stat-total-bookings").textContent = s.total_bookings ?? "0";
+          document.getElementById("stat-pending-bookings").textContent = s.pending_bookings ?? "0";
+          document.getElementById("stat-low-stock").textContent = s.low_stock_drones ?? "0";
+          document.getElementById("stat-total-revenue").textContent = formatMoney(s.total_revenue ?? 0);
+
+          const bookings = data.recent_bookings || [];
+          if (bookings.length === 0) {
+            bookingsEl.innerHTML = '<p class="text-slate-400 text-sm text-center py-3">No recent bookings.</p>';
+          } else {
+            bookingsEl.innerHTML = "";
+            bookings.forEach((b) => {
+              const div = document.createElement("div");
+              div.className = "border-l-4 border-purple-500/70 pl-3 py-2 bg-slate-950/40 rounded-r-lg";
+              const date = b.checkout_date ? new Date(b.checkout_date) : null;
+              const dateText = date
+                ? date.toLocaleString("en-PH", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                : "";
+              div.innerHTML = `
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-medium">${b.FirstName} ${b.LastName}</p>
+                    <p class="text-xs text-slate-300">${b.item_names || "Drone Rental"}</p>
+                    <p class="text-[11px] text-slate-500">${dateText}</p>
+                  </div>
+                  <div class="text-right text-xs">
+                    <span class="inline-flex px-2 py-1 rounded-full text-[11px] font-semibold ${
+                      b.Status === "Accepted"
+                        ? "bg-emerald-500/15 text-emerald-300"
+                        : b.Status === "Pending"
+                        ? "bg-amber-500/15 text-amber-300"
+                        : b.Status === "Returned"
+                        ? "bg-sky-500/15 text-sky-300"
+                        : b.Status === "Returned Damaged"
+                        ? "bg-red-500/15 text-red-300"
+                        : "bg-slate-700/60 text-slate-200"
+                    }">
+                      ${b.Status}
+                    </span>
+                    <div class="mt-1 text-slate-200 font-semibold">${formatMoney(b.price)}</div>
+                  </div>
+                </div>
+              `;
+              bookingsEl.appendChild(div);
+            });
+          }
+
+          const low = data.low_stock_drones || [];
+          if (low.length === 0) {
+            lowStockEl.innerHTML = '<p class="text-slate-400 text-sm text-center py-3">All drones are well stocked.</p>';
+          } else {
+            lowStockEl.innerHTML = "";
+            low.forEach((d) => {
+              const div = document.createElement("div");
+              div.className = "border-l-4 border-red-500/70 pl-3 py-2 bg-slate-950/40 rounded-r-lg flex items-center justify-between";
+              div.innerHTML = `
+                <div>
+                  <p class="font-medium">${d.name}</p>
+                  <p class="text-xs text-slate-300">${d.type}</p>
+                </div>
+                <span class="inline-flex px-2 py-1 rounded-full bg-red-500/15 text-red-300 text-[11px] font-semibold">
+                  ${d.stock} left
+                </span>
+              `;
+              lowStockEl.appendChild(div);
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          bookingsEl.innerHTML =
+            '<p class="text-red-300 text-sm text-center py-3">Failed to load recent bookings.</p>';
+          lowStockEl.innerHTML =
+            '<p class="text-red-300 text-sm text-center py-3">Failed to load low stock drones.</p>';
+        }
+      }
+
+      // Initialize
       (function () {
         const user = getCurrentUser();
-        if (!user) return;
-        const el = document.getElementById("admin-user-label");
-        if (el) {
-          el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
+        if (user) {
+          const el = document.getElementById("admin-user-label");
+          if (el) {
+            el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
+          }
         }
+        loadDashboard();
       })();
     </script>
   </body>
