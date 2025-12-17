@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Employee Dashboard</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-50 min-h-screen">
+    <!-- Role protection -->
+    <script src="./auth-role.js"></script>
+    <script>
+      // Only allow employees to see this page
+      const employeeUser = requireRole("employee", {
+        loginPath: "./login.html",
+        forbiddenPath: "./index.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-slate-800">
+        <a href="./index.html" class="flex items-center gap-2">
+          <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+        </a>
+        <div class="flex items-center gap-4 text-sm">
+          <span id="employee-user-label" class="text-slate-300"></span>
+          <button
+            onclick="logoutAndRedirect('./login.html')"
+            class="px-3 py-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white font-medium text-xs transition"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 px-6 py-8">
+        <h1 class="text-3xl font-semibold mb-2">Employee Dashboard</h1>
+        <p class="text-slate-300 mb-6">
+          This page is only accessible to users with the <span class="font-semibold">employee</span> role.
+        </p>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+            <h2 class="text-lg font-semibold mb-2">My Bookings</h2>
+            <p class="text-sm text-slate-300">
+              Use this area to link to booking management tools or information from your main Laravel app.
+            </p>
+          </section>
+
+          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+            <h2 class="text-lg font-semibold mb-2">Assigned Drones</h2>
+            <p class="text-sm text-slate-300">
+              Add links or content related to drones assigned to this employee or current missions.
+            </p>
+          </section>
+
+          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+            <h2 class="text-lg font-semibold mb-2">Support</h2>
+            <p class="text-sm text-slate-300">
+              Place quick links to documentation, internal tools, or contact points for admins.
+            </p>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Fill in user label
+      (function () {
+        const user = getCurrentUser();
+        if (!user) return;
+        const el = document.getElementById("employee-user-label");
+        if (el) {
+          el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
+        }
+      })();
+    </script>
+  </body>
+  </html>
+
+
