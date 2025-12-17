@@ -354,7 +354,20 @@
       function imageUrlFromPath(path) {
         if (!path) return "./images/drone.png";
         if (path.startsWith("http")) return path;
-        return API_BASE + "/" + path;
+
+        // Map Laravel's 'drones/...' folder to GitHub Pages 'drone-images/...'
+        if (path.startsWith("drones/")) {
+          const fileName = path.substring("drones/".length);
+          return "./drone-images/" + fileName;
+        }
+
+        // If already pointing to drone-images, serve from GitHub Pages directly
+        if (path.startsWith("drone-images/")) {
+          return "./" + path;
+        }
+
+        // Fallback to local placeholder
+        return "./images/drone.png";
       }
 
       async function fetchJson(url, options = {}) {
