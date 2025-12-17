@@ -174,12 +174,14 @@
 
                 try {
                     const response = await fetch(LOGIN_ENDPOINT, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, password }),
-                    });
+    method: 'POST',
+    headers: {
+        // Use a simple content type to avoid preflight
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    // Encode as form data instead of JSON
+    body: new URLSearchParams({ email, password }).toString(),
+});
 
                     const data = await response.json();
 
@@ -427,6 +429,7 @@
         </script>
     </body>
 </html>
+
 
 
 
