@@ -47,12 +47,26 @@
       </header>
 
       <main class="flex-1 px-6 py-8 space-y-8">
-        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 class="text-3xl font-semibold mb-1">Admin Dashboard</h1>
             <p class="text-slate-300 text-sm">
               This page is only accessible to users with the <span class="font-semibold">admin</span> role.
             </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a
+              href="./admin-bookings.html"
+              class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium shadow-md transition"
+            >
+              Manage Bookings
+            </a>
+            <a
+              href="./admin-drones.html"
+              class="px-4 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-xs font-medium transition"
+            >
+              Manage Drones
+            </a>
           </div>
         </div>
 
