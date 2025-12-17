@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Admin Drones Management</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-50 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Only admins can access this page
+      requireRole("admin", {
+        loginPath: "./login.html",
+        forbiddenPath: "./index.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header
+        class="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-slate-800"
+      >
+        <a href="./index.html" class="flex items-center gap-2">
+          <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+        </a>
+        <div class="flex items-center gap-4 text-sm">
+          <span id="admin-user-label" class="text-slate-300"></span>
+          <button
+            onclick="logoutAndRedirect('./login.html')"
+            class="px-3 py-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white font-medium text-xs transition"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8 space-y-8">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-semibold">Drones Management</h1>
+            <p class="text-slate-300 text-sm mt-1">Manage your drone inventory via API.</p>
+          </div>
+          <button
+            id="open-create-form"
+            class="self-start px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm font-medium shadow-lg transition"
+          >
+            + Add New Drone
+          </button>
+        </div>
+
+        <!-- Create / Edit Form -->
+        <section
+          id="drone-form-section"
+          class="bg-slate-900/70 border border-slate-800 rounded-xl p-5 hidden"
+        >
+          <h2 id="form-title" class="text-xl font-semibold mb-3">Add New Drone</h2>
+          <form id="drone-form" class="grid gap-4 md:grid-cols-2">
+            <input type="hidden" id="drone-id" />
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Name *</label>
+              <input
+                id="drone-name"
+                type="text"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Type *</label>
+              <input
+                id="drone-type"
+                type="text"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Brand</label>
+              <input
+                id="drone-brand"
+                type="text"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Price (₱) *</label>
+              <input
+                id="drone-price"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Stock *</label>
+              <input
+                id="drone-stock"
+                type="number"
+                min="0"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Image path (optional)</label>
+              <input
+                id="drone-image"
+                type="text"
+                placeholder="e.g. drones/1718431536_DJI Mavic 3 pro.jpg"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+              <textarea
+                id="drone-description"
+                rows="3"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              ></textarea>
+            </div>
+
+            <div class="md:col-span-2 flex flex-wrap gap-3 justify-end mt-2">
+              <span
+                id="form-status"
+                class="mr-auto text-xs text-slate-300 min-h-[1.25rem] flex items-center"
+              ></span>
+              <button
+                type="button"
+                id="cancel-edit"
+                class="px-3 py-2 rounded-md bg-slate-800 text-xs font-medium hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium"
+              >
+                Save Drone
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Search / Filter -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <form
+            id="filter-form"
+            class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"
+          >
+            <div class="flex-1">
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Search by name, brand, or type..."
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div class="w-full md:w-52">
+              <select
+                id="type-filter"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              >
+                <option value="">All Types</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              id="clear-filters"
+              class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-xs font-medium"
+            >
+              Clear
+            </button>
+          </form>
+        </section>
+
+        <!-- Drones Table -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-800 text-sm" id="drones-table">
+              <thead class="bg-slate-900/90 text-slate-300 text-xs uppercase">
+                <tr>
+                  <th class="px-4 py-3 text-left">Image</th>
+                  <th class="px-4 py-3 text-left">Name</th>
+                  <th class="px-4 py-3 text-left">Type</th>
+                  <th class="px-4 py-3 text-left">Brand</th>
+                  <th class="px-4 py-3 text-left">Price</th>
+                  <th class="px-4 py-3 text-left">Stock</th>
+                  <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="drones-tbody" class="divide-y divide-slate-800 bg-slate-950/40">
+                <tr>
+                  <td colspan="7" class="px-4 py-8 text-center text-slate-400 text-sm">
+                    Loading drones...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const DRONES_API = API_BASE + "/api-drones.php";
+
+      function formatPrice(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toFixed(2);
+      }
+
+      function imageUrlFromPath(path) {
+        if (!path) return "./images/drone.png";
+        // Path is relative to Laravel public; we can mirror the same images in GitHub if needed.
+        if (path.startsWith("http")) return path;
+        return API_BASE + "/" + path;
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadDrones(params = {}) {
+        const tbody = document.getElementById("drones-tbody");
+        tbody.innerHTML =
+          '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400 text-sm">Loading drones...</td></tr>';
+
+        const query = new URLSearchParams({ action: "list", ...params });
+        try {
+          const data = await fetchJson(DRONES_API + "?" + query.toString());
+
+          // Populate type filter
+          const typeSelect = document.getElementById("type-filter");
+          const currentType = typeSelect.value;
+          typeSelect.innerHTML = '<option value="">All Types</option>';
+          (data.types || []).forEach((t) => {
+            const opt = document.createElement("option");
+            opt.value = t;
+            opt.textContent = t;
+            if (t === currentType) opt.selected = true;
+            typeSelect.appendChild(opt);
+          });
+
+          // Populate table
+          if (!data.drones || data.drones.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400 text-sm">No drones found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = "";
+          data.drones.forEach((d) => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-900/60 transition";
+            tr.innerHTML = `
+              <td class="px-4 py-3">
+                <img src="${imageUrlFromPath(d.image)}" alt="${d.name}" class="w-14 h-14 object-cover rounded-lg border border-slate-800" onerror="this.src='./images/drone.png'" />
+              </td>
+              <td class="px-4 py-3">
+                <div class="font-medium">${d.name}</div>
+                <div class="text-xs text-slate-400 line-clamp-1">${d.description || ""}</div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex px-2 py-1 rounded-full bg-purple-500/15 text-purple-300 text-[11px] font-medium">${d.type}</span>
+              </td>
+              <td class="px-4 py-3 text-sm">${d.brand || "-"}</td>
+              <td class="px-4 py-3 text-sm font-semibold text-purple-300">${formatPrice(d.price)}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex px-2 py-1 rounded-full text-[11px] font-semibold ${
+                  d.stock <= 5
+                    ? "bg-red-500/15 text-red-300"
+                    : "bg-emerald-500/15 text-emerald-300"
+                }">${d.stock} in stock</span>
+              </td>
+              <td class="px-4 py-3 text-xs">
+                <div class="flex gap-2">
+                  <button class="text-blue-300 hover:text-blue-100 underline underline-offset-2" data-action="edit" data-id="${
+                    d.id_drone
+                  }">Edit</button>
+                  <button class="text-red-300 hover:text-red-100 underline underline-offset-2" data-action="delete" data-id="${
+                    d.id_drone
+                  }">Delete</button>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML =
+            '<tr><td colspan="7" class="px-4 py-8 text-center text-red-300 text-sm">Failed to load drones.</td></tr>';
+        }
+      }
+
+      function fillForm(drone) {
+        document.getElementById("drone-id").value = drone?.id_drone || "";
+        document.getElementById("drone-name").value = drone?.name || "";
+        document.getElementById("drone-type").value = drone?.type || "";
+        document.getElementById("drone-brand").value = drone?.brand || "";
+        document.getElementById("drone-price").value = drone?.price || "";
+        document.getElementById("drone-stock").value = drone?.stock || 0;
+        document.getElementById("drone-image").value = drone?.image || "";
+        document.getElementById("drone-description").value = drone?.description || "";
+      }
+
+      function openForm(mode, drone = null) {
+        const section = document.getElementById("drone-form-section");
+        const title = document.getElementById("form-title");
+        const status = document.getElementById("form-status");
+        status.textContent = "";
+
+        if (mode === "edit" && drone) {
+          title.textContent = "Edit Drone";
+          fillForm(drone);
+        } else {
+          title.textContent = "Add New Drone";
+          fillForm(null);
+        }
+
+        section.classList.remove("hidden");
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function closeForm() {
+        document.getElementById("drone-form-section").classList.add("hidden");
+        document.getElementById("form-status").textContent = "";
+        fillForm(null);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Fill header user label
+        const user = getCurrentUser();
+        if (user) {
+          const el = document.getElementById("admin-user-label");
+          if (el) {
+            el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
+          }
+        }
+
+        loadDrones();
+
+        document
+          .getElementById("open-create-form")
+          .addEventListener("click", () => openForm("create"));
+
+        document.getElementById("cancel-edit").addEventListener("click", closeForm);
+
+        document.getElementById("filter-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const search = document.getElementById("search-input").value.trim();
+          const type = document.getElementById("type-filter").value;
+          loadDrones({ search, type });
+        });
+
+        document.getElementById("clear-filters").addEventListener("click", () => {
+          document.getElementById("search-input").value = "";
+          document.getElementById("type-filter").value = "";
+          loadDrones();
+        });
+
+        document.getElementById("drones-tbody").addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
+          const id = btn.getAttribute("data-id");
+          const action = btn.getAttribute("data-action");
+
+          if (action === "edit") {
+            // Find row data from current table row
+            const row = btn.closest("tr");
+            const cells = row.querySelectorAll("td");
+            const name = cells[1].querySelector(".font-medium").textContent.trim();
+            const type = cells[2].innerText.trim();
+            const brand = cells[3].innerText.trim();
+            const priceText = cells[4].innerText.replace("₱", "").trim();
+            const stockText = cells[5].innerText.replace("in stock", "").trim();
+
+            openForm("edit", {
+              id_drone: id,
+              name,
+              type,
+              brand: brand === "-" ? "" : brand,
+              price: parseFloat(priceText) || 0,
+              stock: parseInt(stockText) || 0,
+              image: "", // image path not recoverable from URL here
+              description: "", // simplified: description not in table
+            });
+          }
+
+          if (action === "delete") {
+            if (!confirm("Are you sure you want to delete this drone?")) return;
+            const formData = new URLSearchParams();
+            formData.append("action", "delete");
+            formData.append("id_drone", id);
+
+            fetchJson(DRONES_API, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: formData.toString(),
+            })
+              .then(() => loadDrones())
+              .catch((err) => alert(err.message));
+          }
+        });
+
+        document.getElementById("drone-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const status = document.getElementById("form-status");
+
+          const id = document.getElementById("drone-id").value;
+          const name = document.getElementById("drone-name").value.trim();
+          const type = document.getElementById("drone-type").value.trim();
+          const brand = document.getElementById("drone-brand").value.trim();
+          const price = document.getElementById("drone-price").value;
+          const stock = document.getElementById("drone-stock").value;
+          const image = document.getElementById("drone-image").value.trim();
+          const description = document.getElementById("drone-description").value.trim();
+
+          if (!name || !type || !price || stock === "") {
+            status.textContent = "Name, type, price and stock are required.";
+            status.className = "mr-auto text-xs text-red-300 flex items-center";
+            return;
+          }
+
+          const action = id ? "update" : "create";
+          const formData = new URLSearchParams();
+          formData.append("action", action);
+          if (id) formData.append("id_drone", id);
+          formData.append("name", name);
+          formData.append("type", type);
+          formData.append("brand", brand);
+          formData.append("price", price);
+          formData.append("stock", stock);
+          formData.append("image", image);
+          formData.append("description", description);
+
+          status.textContent = "Saving...";
+          status.className = "mr-auto text-xs text-slate-300 flex items-center";
+
+          fetchJson(DRONES_API, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: formData.toString(),
+          })
+            .then(() => {
+              status.textContent = "Saved successfully.";
+              status.className = "mr-auto text-xs text-emerald-300 flex items-center";
+              loadDrones();
+              setTimeout(() => {
+                closeForm();
+              }, 500);
+            })
+            .catch((err) => {
+              console.error(err);
+              status.textContent = err.message || "Save failed.";
+              status.className = "mr-auto text-xs text-red-300 flex items-center";
+            });
+        });
+      });
+    </script>
+  </body>
+</html>
+
+
