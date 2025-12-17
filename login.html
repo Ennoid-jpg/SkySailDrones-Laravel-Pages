@@ -49,6 +49,7 @@
             <div class="absolute top-6 left-6 z-10">
                 <a href="./index.html" class="flex items-center space-x-2 text-white hover:text-white/80 transition">
                     <img src="./images/logolight.png" alt="SkySail Logo" class="h-14 w-auto">
+                    
                 </a>
             </div>
 
@@ -186,12 +187,22 @@
                         messageEl.classList.remove('text-gray-600');
                         messageEl.classList.add('text-green-600');
 
+                        // Store basic user info in localStorage
                         if (data.user) {
                             localStorage.setItem('skysail_user', JSON.stringify(data.user));
                         }
 
+                        // Redirect based on role
                         setTimeout(() => {
-                            window.location.href = './index.html';
+                            const role = data.user?.role || 'user';
+
+                            if (role === 'admin') {
+                                window.location.href = './admin-dashboard.html';
+                            } else if (role === 'employee') {
+                                window.location.href = './employee-dashboard.html';
+                            } else {
+                                window.location.href = './index.html';
+                            }
                         }, 800);
                     } else {
                         messageEl.textContent = data.message || 'Login failed. Please check your credentials.';
@@ -208,3 +219,4 @@
         </script>
     </body>
 </html>
+
