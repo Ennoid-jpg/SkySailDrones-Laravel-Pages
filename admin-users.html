@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Admin Users</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-50 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      requireRole("admin", {
+        loginPath: "./login.html",
+        forbiddenPath: "./index.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header
+        class="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-slate-800"
+      >
+        <a href="./admin-dashboard.html" class="flex items-center gap-2">
+          <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+        </a>
+        <div class="flex items-center gap-4 text-sm">
+          <span id="admin-user-label" class="text-slate-300"></span>
+          <button
+            onclick="logoutAndRedirect('./login.html')"
+            class="px-3 py-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white font-medium text-xs transition"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8 space-y-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-semibold">Users Management</h1>
+            <p class="text-slate-300 text-sm">
+              Manage user accounts and roles via the API.
+            </p>
+          </div>
+          <button
+            id="add-user-btn"
+            class="px-4 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-xs font-medium shadow-md transition"
+          >
+            + Add New User
+          </button>
+        </div>
+
+        <!-- Search / Filter -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <form
+            id="filter-form"
+            class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"
+          >
+            <div class="flex-1">
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Search by name, username, or contact number..."
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div class="w-full md:w-52">
+              <select
+                id="role-filter"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              >
+                <option value="">All Roles</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              id="clear-filters"
+              class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-xs font-medium"
+            >
+              Clear
+            </button>
+          </form>
+        </section>
+
+        <!-- Users Table -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-800 text-sm" id="users-table">
+              <thead class="bg-slate-900/90 text-slate-300 text-xs uppercase">
+                <tr>
+                  <th class="px-4 py-3 text-left">User</th>
+                  <th class="px-4 py-3 text-left">Username</th>
+                  <th class="px-4 py-3 text-left">Contact</th>
+                  <th class="px-4 py-3 text-left">Role</th>
+                  <th class="px-4 py-3 text-left">Joined</th>
+                  <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody" class="divide-y divide-slate-800 bg-slate-950/40">
+                <tr>
+                  <td colspan="6" class="px-4 py-8 text-center text-slate-400 text-sm">
+                    Loading users...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Create/Edit User Modal -->
+    <div
+      id="user-modal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+    >
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+          <h2 id="modal-title" class="text-xl font-semibold">Add New User</h2>
+          <button
+            id="close-modal"
+            class="text-slate-400 hover:text-slate-200 transition"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <form id="user-form" class="p-6 space-y-4">
+          <input type="hidden" id="user-id" name="id_user" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                First Name <span class="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="FirstName"
+                name="FirstName"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Last Name <span class="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="LastName"
+                name="LastName"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Username (Email) <span class="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Contact Number <span class="text-red-400">*</span>
+              </label>
+              <input
+                type="tel"
+                id="ContactNumber"
+                name="ContactNumber"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Password <span id="password-required" class="text-red-400">*</span>
+                <span id="password-optional" class="text-slate-500 text-xs hidden">(Leave empty to keep current)</span>
+              </label>
+              <input
+                type="password"
+                id="Password"
+                name="Password"
+                minlength="8"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Role <span class="text-red-400">*</span>
+              </label>
+              <select
+                id="role"
+                name="role"
+                required
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              >
+                <option value="user">User</option>
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-300 mb-1">
+                Profile Picture URL
+              </label>
+              <input
+                type="text"
+                id="profile_picture"
+                name="profile_picture"
+                placeholder="uploads/default-avatar-icon-of-social-media-user-vector.jpg"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+              <p class="mt-1 text-xs text-slate-500">Leave empty to use default avatar</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="button"
+              id="cancel-form"
+              class="px-4 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm font-medium"
+            >
+              <span id="submit-text">Create User</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const USERS_API = API_BASE + "/api-users.php";
+      let currentUserId = null;
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+        const d = new Date(dateStr);
+        if (isNaN(d)) return dateStr;
+        return d.toLocaleDateString("en-PH", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        });
+      }
+
+      function getProfilePicUrl(pic) {
+        if (!pic) return "https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg";
+        if (pic.startsWith("http")) return pic;
+        return `https://skysaildrone.solof.shop/${pic}`;
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadUsers(params = {}) {
+        const tbody = document.getElementById("users-tbody");
+        tbody.innerHTML =
+          '<tr><td colspan="6" class="px-4 py-6 text-center text-slate-400 text-sm">Loading users...</td></tr>';
+
+        const query = new URLSearchParams({ action: "list", ...params });
+
+        try {
+          const data = await fetchJson(USERS_API + "?" + query.toString());
+          const users = data.users || [];
+          const roles = data.roles || [];
+
+          // Populate role filter
+          const roleFilter = document.getElementById("role-filter");
+          const currentRole = roleFilter.value;
+          roleFilter.innerHTML = '<option value="">All Roles</option>';
+          roles.forEach((role) => {
+            const opt = document.createElement("option");
+            opt.value = role;
+            opt.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+            if (role === currentRole) opt.selected = true;
+            roleFilter.appendChild(opt);
+          });
+
+          if (users.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400 text-sm">No users found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = "";
+          users.forEach((u) => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-900/60 transition";
+
+            const roleClasses =
+              u.role === "admin"
+                ? "bg-purple-500/15 text-purple-300"
+                : u.role === "employee"
+                ? "bg-blue-500/15 text-blue-300"
+                : "bg-slate-700/60 text-slate-200";
+
+            tr.innerHTML = `
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+                    <img
+                      src="${getProfilePicUrl(u.profile_picture)}"
+                      alt="${u.FirstName} ${u.LastName}"
+                      class="w-full h-full object-cover"
+                      onerror="this.src='https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg'"
+                    />
+                  </div>
+                  <div>
+                    <div class="font-medium text-sm">${u.FirstName} ${u.LastName}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-sm">${u.username}</td>
+              <td class="px-4 py-3 text-sm">${u.ContactNumber}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex px-2 py-1 rounded-full text-[11px] font-semibold ${roleClasses}">
+                  ${u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-400">${formatDate(u.created_at)}</td>
+              <td class="px-4 py-3 text-xs">
+                <div class="flex gap-2">
+                  <button
+                    class="edit-user px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-[11px] font-medium"
+                    data-id="${u.id_user}"
+                  >
+                    Edit
+                  </button>
+                  ${u.id_user !== currentUserId ? `
+                    <button
+                      class="delete-user px-2 py-1 rounded bg-red-600/80 hover:bg-red-600 text-[11px] font-medium"
+                      data-id="${u.id_user}"
+                    >
+                      Delete
+                    </button>
+                  ` : '<span class="text-slate-500 text-[11px]">Current</span>'}
+                </div>
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML =
+            '<tr><td colspan="6" class="px-4 py-8 text-center text-red-300 text-sm">Failed to load users.</td></tr>';
+        }
+      }
+
+      function openModal(isEdit = false, userData = null) {
+        const modal = document.getElementById("user-modal");
+        const title = document.getElementById("modal-title");
+        const submitText = document.getElementById("submit-text");
+        const passwordRequired = document.getElementById("password-required");
+        const passwordOptional = document.getElementById("password-optional");
+        const passwordInput = document.getElementById("Password");
+
+        if (isEdit && userData) {
+          title.textContent = "Edit User";
+          submitText.textContent = "Update User";
+          document.getElementById("user-id").value = userData.id_user;
+          document.getElementById("FirstName").value = userData.FirstName || "";
+          document.getElementById("LastName").value = userData.LastName || "";
+          document.getElementById("username").value = userData.username || "";
+          document.getElementById("ContactNumber").value = userData.ContactNumber || "";
+          document.getElementById("role").value = userData.role || "user";
+          document.getElementById("profile_picture").value = userData.profile_picture || "";
+          passwordInput.value = "";
+          passwordInput.removeAttribute("required");
+          passwordRequired.classList.add("hidden");
+          passwordOptional.classList.remove("hidden");
+        } else {
+          title.textContent = "Add New User";
+          submitText.textContent = "Create User";
+          document.getElementById("user-form").reset();
+          document.getElementById("user-id").value = "";
+          passwordInput.setAttribute("required", "required");
+          passwordRequired.classList.remove("hidden");
+          passwordOptional.classList.add("hidden");
+        }
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("user-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        document.getElementById("user-form").reset();
+        document.getElementById("user-id").value = "";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (user) {
+          currentUserId = user.id_user || user.id;
+          const el = document.getElementById("admin-user-label");
+          if (el) {
+            el.textContent = `${user.first_name || user.FirstName || ""} ${user.last_name || user.LastName || ""} (${user.email || user.username})`;
+          }
+        }
+
+        loadUsers();
+
+        document.getElementById("filter-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const search = document.getElementById("search-input").value.trim();
+          const role = document.getElementById("role-filter").value;
+          loadUsers({ search, role });
+        });
+
+        document.getElementById("clear-filters").addEventListener("click", () => {
+          document.getElementById("search-input").value = "";
+          document.getElementById("role-filter").value = "";
+          loadUsers();
+        });
+
+        document.getElementById("add-user-btn").addEventListener("click", () => {
+          openModal(false);
+        });
+
+        document.getElementById("close-modal").addEventListener("click", closeModal);
+        document.getElementById("cancel-form").addEventListener("click", closeModal);
+
+        document.getElementById("user-form").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const data = Object.fromEntries(formData);
+          const isEdit = !!data.id_user;
+
+          const params = new URLSearchParams();
+          params.append("action", isEdit ? "update" : "create");
+          Object.keys(data).forEach((key) => {
+            if (data[key]) params.append(key, data[key]);
+          });
+
+          // For create, password is required
+          if (!isEdit && !data.Password) {
+            alert("Password is required for new users.");
+            return;
+          }
+
+          try {
+            await fetchJson(USERS_API, {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: params.toString(),
+            });
+            closeModal();
+            loadUsers();
+            alert(isEdit ? "User updated successfully!" : "User created successfully!");
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+
+        document.getElementById("users-tbody").addEventListener("click", async (e) => {
+          const editBtn = e.target.closest(".edit-user");
+          const delBtn = e.target.closest(".delete-user");
+
+          if (editBtn) {
+            const id = editBtn.getAttribute("data-id");
+            try {
+              const data = await fetchJson(USERS_API + "?action=list");
+              const user = data.users.find((u) => u.id_user == id);
+              if (user) {
+                openModal(true, user);
+              }
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+
+          if (delBtn) {
+            const id = delBtn.getAttribute("data-id");
+            if (id == currentUserId) {
+              alert("You cannot delete your own account.");
+              return;
+            }
+            if (!confirm("Are you sure you want to delete this user?")) return;
+
+            const formData = new URLSearchParams();
+            formData.append("action", "delete");
+            formData.append("id_user", id);
+
+            try {
+              await fetchJson(USERS_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData.toString(),
+              });
+              loadUsers();
+              alert("User deleted successfully!");
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+
