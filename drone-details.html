@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Drone Details</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Require login for all user types
+      requireLogin({
+        loginPath: "./login.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./drones.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <a
+                href="./drones.html"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm transition"
+              >
+                ← Back to Browse
+              </a>
+              <a
+                href="./cart.html"
+                class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm transition relative"
+              >
+                Cart
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+              </a>
+              <span id="user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div id="drone-details" class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="grid md:grid-cols-2 gap-8 p-8">
+            <!-- Image -->
+            <div class="relative">
+              <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden">
+                <img
+                  id="drone-image"
+                  src=""
+                  alt="Drone"
+                  class="w-full h-full object-cover"
+                  onerror="this.src='./images/drone.png'"
+                />
+              </div>
+              <div id="low-stock-badge" class="absolute top-4 left-4 hidden">
+                <span class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold"></span>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div>
+              <div class="mb-6">
+                <span id="drone-type" class="px-4 py-2 bg-purple-100 text-purple-800 rounded-lg text-sm font-semibold"></span>
+              </div>
+
+              <h1 id="drone-name" class="text-4xl font-bold text-gray-900 mb-4"></h1>
+              <p id="drone-brand" class="text-xl text-gray-600 mb-6"></p>
+
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                <p id="drone-description" class="text-gray-700 leading-relaxed"></p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">Price per Day</p>
+                  <p id="drone-price" class="text-2xl font-bold text-purple-600"></p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">Stock Available</p>
+                  <p id="drone-stock" class="text-2xl font-bold text-gray-900"></p>
+                </div>
+              </div>
+
+              <div id="add-to-cart-section">
+                <form id="add-to-cart-form" class="space-y-4">
+                  <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      min="1"
+                      value="1"
+                      class="w-32 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    class="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    Add to Cart
+                  </button>
+                </form>
+              </div>
+
+              <div id="out-of-stock-section" class="hidden">
+                <div class="px-6 py-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p class="text-red-800 font-semibold">Currently Out of Stock</p>
+                  <p class="text-red-600 text-sm mt-1">Check back later for availability.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const DRONES_API = API_BASE + "/api-drones.php";
+
+      function formatMoney(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function imageUrlFromPath(path) {
+        if (!path) return "./images/drone.png";
+        if (path.startsWith("http")) return path;
+        if (path.startsWith("drones/")) {
+          const fileName = path.split("/").pop();
+          return "./drone-images/" + fileName;
+        }
+        if (path.startsWith("storage/app/public/drones/")) {
+          const fileName = path.split("/").pop();
+          return API_BASE + "/storage/" + fileName;
+        }
+        return "./images/drone.png";
+      }
+
+      function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
+        const count = Object.values(cart).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const cartCountEl = document.getElementById("cart-count");
+        if (count > 0) {
+          cartCountEl.textContent = count;
+          cartCountEl.classList.remove("hidden");
+        } else {
+          cartCountEl.classList.add("hidden");
+        }
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadDroneDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const droneId = urlParams.get("id");
+
+        if (!droneId) {
+          window.location.href = "./drones.html";
+          return;
+        }
+
+        try {
+          const data = await fetchJson(DRONES_API + "?action=list");
+          const drone = data.drones.find((d) => d.id_drone == droneId);
+
+          if (!drone) {
+            alert("Drone not found.");
+            window.location.href = "./drones.html";
+            return;
+          }
+
+          // Populate drone details
+          document.getElementById("drone-image").src = imageUrlFromPath(drone.image);
+          document.getElementById("drone-type").textContent = drone.type;
+          document.getElementById("drone-name").textContent = drone.name;
+          document.getElementById("drone-brand").textContent = drone.brand || "";
+          document.getElementById("drone-description").textContent = drone.description || "No description available.";
+          document.getElementById("drone-price").textContent = formatMoney(drone.price);
+          document.getElementById("drone-stock").textContent = drone.stock;
+
+          // Set max quantity
+          const quantityInput = document.getElementById("quantity");
+          quantityInput.max = drone.stock;
+
+          // Show/hide sections based on stock
+          if (drone.stock > 0) {
+            document.getElementById("add-to-cart-section").classList.remove("hidden");
+            document.getElementById("out-of-stock-section").classList.add("hidden");
+            if (drone.stock <= 5) {
+              const badge = document.getElementById("low-stock-badge");
+              badge.classList.remove("hidden");
+              badge.querySelector("span").textContent = `Only ${drone.stock} left!`;
+            }
+          } else {
+            document.getElementById("add-to-cart-section").classList.add("hidden");
+            document.getElementById("out-of-stock-section").classList.remove("hidden");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Failed to load drone details.");
+          window.location.href = "./drones.html";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (user) {
+          const userLabel = document.getElementById("user-label");
+          if (userLabel) {
+            userLabel.textContent = `${user.first_name || user.FirstName || ""} ${user.last_name || user.LastName || ""}`;
+          }
+        }
+
+        updateCartCount();
+
+        document.getElementById("add-to-cart-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const urlParams = new URLSearchParams(window.location.search);
+          const droneId = urlParams.get("id");
+          const quantity = parseInt(document.getElementById("quantity").value) || 1;
+
+          // Get cart from localStorage
+          const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
+
+          // Add or update item in cart
+          if (cart[droneId]) {
+            cart[droneId].quantity += quantity;
+          } else {
+            cart[droneId] = { quantity: quantity };
+          }
+
+          // Save cart
+          localStorage.setItem("skysail_cart", JSON.stringify(cart));
+          updateCartCount();
+
+          alert("Added to cart!");
+        });
+
+        loadDroneDetails();
+      });
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - My Bookings</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Require login for all user types
+      requireLogin({
+        loginPath: "./login.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./client-dashboard.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <a
+                href="./drones.html"
+                class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                Browse Drones
+              </a>
+              <span id="user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Bookings</h2>
+
+        <div id="bookings-list" class="space-y-4">
+          <div class="text-center text-gray-500 py-12">Loading bookings...</div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const BOOKINGS_API = API_BASE + "/api-bookings.php";
+
+      function formatMoney(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        if (isNaN(d)) return dateStr;
+        return d.toLocaleDateString("en-PH", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        });
+      }
+
+      function getStatusClass(status) {
+        if (status === "Accepted") return "bg-green-100 text-green-800";
+        if (status === "Pending") return "bg-yellow-100 text-yellow-800";
+        if (status === "Returned") return "bg-blue-100 text-blue-800";
+        if (status === "Returned Damaged") return "bg-red-100 text-red-800";
+        return "bg-gray-100 text-gray-800";
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadBookings() {
+        const bookingsList = document.getElementById("bookings-list");
+        const user = getCurrentUser();
+
+        if (!user || !user.id_user) {
+          bookingsList.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p class="text-red-500">Please log in to view your bookings.</p>
+            </div>
+          `;
+          return;
+        }
+
+        bookingsList.innerHTML = '<div class="text-center text-gray-500 py-12">Loading bookings...</div>';
+
+        try {
+          // Get all bookings and filter by user
+          const data = await fetchJson(BOOKINGS_API + "?action=list");
+          const allBookings = data.bookings || [];
+          const userBookings = allBookings.filter((b) => b.id_user == user.id_user);
+
+          if (userBookings.length === 0) {
+            bookingsList.innerHTML = `
+              <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+                <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">No bookings yet</h3>
+                <p class="text-gray-600 mb-6">Start renting drones to see your bookings here!</p>
+                <a href="./drones.html" class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  Browse Drones
+                </a>
+              </div>
+            `;
+            return;
+          }
+
+          bookingsList.innerHTML = "";
+          userBookings.forEach((booking) => {
+            const bookingDiv = document.createElement("div");
+            bookingDiv.className = "bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300";
+            bookingDiv.innerHTML = `
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-6">
+                  <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900">${booking.item_names || "Drone Rental"}</h3>
+                    <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                      <span>📅 Checkout: ${formatDate(booking.checkout_date)}</span>
+                      <span>🔄 Return: ${formatDate(booking.return_date)} at ${booking.return_time || ""}</span>
+                      <span>📦 Quantity: ${booking.quantity || 1}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-col md:items-end gap-2">
+                  <span class="px-4 py-2 rounded-full text-sm font-semibold ${getStatusClass(booking.Status)}">
+                    ${booking.Status}
+                  </span>
+                  <p class="text-2xl font-bold text-purple-600">${formatMoney(booking.price)}</p>
+                </div>
+              </div>
+            `;
+            bookingsList.appendChild(bookingDiv);
+          });
+        } catch (err) {
+          console.error(err);
+          bookingsList.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p class="text-red-500">Failed to load bookings.</p>
+            </div>
+          `;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (user) {
+          const userLabel = document.getElementById("user-label");
+          if (userLabel) {
+            userLabel.textContent = `${user.first_name || user.FirstName || ""} ${user.last_name || user.LastName || ""}`;
+          }
+        }
+
+        loadBookings();
+      });
+    </script>
+  </body>
+</html>
+

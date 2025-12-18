@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Shopping Cart</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Require login for all user types
+      requireLogin({
+        loginPath: "./login.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./drones.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <a
+                href="./drones.html"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm transition"
+              >
+                Continue Shopping
+              </a>
+              <span id="user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Shopping Cart</h2>
+
+        <div id="cart-content">
+          <div class="text-center text-gray-500 py-12">Loading cart...</div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const DRONES_API = API_BASE + "/api-drones.php";
+
+      function formatMoney(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function imageUrlFromPath(path) {
+        if (!path) return "./images/drone.png";
+        if (path.startsWith("http")) return path;
+        if (path.startsWith("drones/")) {
+          const fileName = path.split("/").pop();
+          return "./drone-images/" + fileName;
+        }
+        if (path.startsWith("storage/app/public/drones/")) {
+          const fileName = path.split("/").pop();
+          return API_BASE + "/storage/" + fileName;
+        }
+        return "./images/drone.png";
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadCart() {
+        const cartContent = document.getElementById("cart-content");
+        const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
+
+        if (Object.keys(cart).length === 0) {
+          cartContent.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+              <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h3>
+              <p class="text-gray-600 mb-6">Start adding drones to your cart!</p>
+              <a href="./drones.html" class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                Browse Drones
+              </a>
+            </div>
+          `;
+          return;
+        }
+
+        try {
+          // Get all drones data
+          const dronesData = await fetchJson(DRONES_API + "?action=list");
+          const drones = dronesData.drones || [];
+          const dronesMap = {};
+          drones.forEach((d) => {
+            dronesMap[d.id_drone] = d;
+          });
+
+          let total = 0;
+          const cartItems = [];
+
+          // Build cart items
+          for (const [droneId, item] of Object.entries(cart)) {
+            const drone = dronesMap[droneId];
+            if (drone) {
+              const quantity = item.quantity || 1;
+              const subtotal = drone.price * quantity;
+              total += subtotal;
+              cartItems.push({
+                drone,
+                quantity,
+                subtotal,
+              });
+            }
+          }
+
+          if (cartItems.length === 0) {
+            localStorage.removeItem("skysail_cart");
+            loadCart();
+            return;
+          }
+
+          cartContent.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div class="p-6">
+                <form id="cart-form" class="space-y-4">
+                  ${cartItems
+                    .map(
+                      (item, index) => `
+                    <div class="flex items-center gap-6 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                      <img
+                        src="${imageUrlFromPath(item.drone.image)}"
+                        alt="${item.drone.name}"
+                        class="w-24 h-24 object-cover rounded-lg"
+                        onerror="this.src='./images/drone.png'"
+                      />
+                      <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">${item.drone.name}</h3>
+                        <p class="text-sm text-gray-600">${item.drone.brand || ""} • ${item.drone.type}</p>
+                        <p class="text-purple-600 font-semibold mt-2">${formatMoney(item.drone.price)} per day</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <input
+                          type="number"
+                          name="quantities[${item.drone.id_drone}]"
+                          value="${item.quantity}"
+                          min="1"
+                          max="${item.drone.stock}"
+                          class="w-20 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                        />
+                        <p class="text-gray-600">× ${formatMoney(item.drone.price)}</p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-xl font-bold text-gray-900">${formatMoney(item.subtotal)}</p>
+                        <button
+                          type="button"
+                          class="text-red-600 hover:text-red-800 text-sm font-medium remove-item"
+                          data-id="${item.drone.id_drone}"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                  <div class="mt-6 flex justify-between items-center">
+                    <button
+                      type="button"
+                      id="clear-cart"
+                      class="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+                    >
+                      Clear Cart
+                    </button>
+                    <div class="text-right">
+                      <p class="text-2xl font-bold text-gray-900">Total: ${formatMoney(total)}</p>
+                    </div>
+                  </div>
+                  <div class="mt-6">
+                    <a
+                      href="./checkout.html"
+                      class="block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-center hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    >
+                      Proceed to Checkout
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          `;
+
+          // Add event listeners
+          document.querySelectorAll(".remove-item").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const droneId = btn.dataset.id;
+              const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
+              delete cart[droneId];
+              localStorage.setItem("skysail_cart", JSON.stringify(cart));
+              loadCart();
+            });
+          });
+
+          document.getElementById("clear-cart").addEventListener("click", () => {
+            if (confirm("Are you sure you want to clear your cart?")) {
+              localStorage.removeItem("skysail_cart");
+              loadCart();
+            }
+          });
+
+          document.getElementById("cart-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const quantities = {};
+            formData.forEach((value, key) => {
+              if (key.startsWith("quantities[")) {
+                const droneId = key.match(/\[(\d+)\]/)[1];
+                quantities[droneId] = parseInt(value) || 1;
+              }
+            });
+
+            // Update cart
+            const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
+            Object.keys(quantities).forEach((droneId) => {
+              if (cart[droneId]) {
+                cart[droneId].quantity = quantities[droneId];
+              }
+            });
+            localStorage.setItem("skysail_cart", JSON.stringify(cart));
+            loadCart();
+            alert("Cart updated!");
+          });
+        } catch (err) {
+          console.error(err);
+          cartContent.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p class="text-red-500">Failed to load cart.</p>
+            </div>
+          `;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (user) {
+          const userLabel = document.getElementById("user-label");
+          if (userLabel) {
+            userLabel.textContent = `${user.first_name || user.FirstName || ""} ${user.last_name || user.LastName || ""}`;
+          }
+        }
+
+        loadCart();
+      });
+    </script>
+  </body>
+</html>
+
