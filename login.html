@@ -201,6 +201,7 @@
                             } else if (role === 'employee') {
                                 window.location.href = './employee-dashboard.html';
                             } else {
+                                // Default: redirect all users (including 'user' role) to client dashboard
                                 window.location.href = './client-dashboard.html';
                             }
                         }, 800);
