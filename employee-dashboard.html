@@ -36,6 +36,12 @@
               <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
             </a>
             <div class="flex items-center gap-4 text-sm">
+              <a
+                href="./profile.html"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm transition"
+              >
+                Profile
+              </a>
               <span id="employee-user-label" class="text-gray-600"></span>
               <button
                 onclick="logoutAndRedirect('./login.html')"
@@ -49,8 +55,26 @@
       </header>
 
       <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Employee Dashboard</h1>
-        <p class="text-gray-600 mb-8">Welcome! Manage bookings and track rental status.</p>
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Employee Dashboard</h1>
+            <p class="text-gray-600">Welcome! Manage bookings and track rental status.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a
+              href="./profile.html"
+              class="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm transition"
+            >
+              Profile
+            </a>
+            <a
+              href="./employee-bookings.html"
+              class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition"
+            >
+              Manage Bookings
+            </a>
+          </div>
+        </div>
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
