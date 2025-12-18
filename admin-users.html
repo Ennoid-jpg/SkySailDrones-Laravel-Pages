@@ -232,16 +232,28 @@
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-slate-300 mb-1">
-                Profile Picture URL
+                Profile Picture
               </label>
-              <input
-                type="text"
-                id="profile_picture"
-                name="profile_picture"
-                placeholder="uploads/default-avatar-icon-of-social-media-user-vector.jpg"
-                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
-              />
-              <p class="mt-1 text-xs text-slate-500">Leave empty to use default avatar</p>
+              <div class="space-y-2">
+                <input
+                  type="file"
+                  id="profile_picture_file"
+                  name="profile_picture"
+                  accept="image/jpeg,image/png,image/jpg,image/gif"
+                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                />
+                <input
+                  type="text"
+                  id="profile_picture"
+                  name="profile_picture_path"
+                  placeholder="Or enter image path (optional)"
+                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+              <p class="mt-1 text-xs text-slate-500">Upload an image (Max 2MB) or enter a path. Leave empty to use default avatar</p>
+              <div id="profile-picture-preview" class="mt-2 hidden">
+                <img id="profile-picture-preview-img" src="" alt="Preview" class="w-24 h-24 object-cover rounded-lg border border-slate-700" />
+              </div>
             </div>
           </div>
           <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
@@ -407,6 +419,11 @@
           document.getElementById("ContactNumber").value = userData.ContactNumber || "";
           document.getElementById("role").value = userData.role || "user";
           document.getElementById("profile_picture").value = userData.profile_picture || "";
+          document.getElementById("profile_picture_file").value = "";
+          const previewDiv = document.getElementById("profile-picture-preview");
+          const previewImg = document.getElementById("profile-picture-preview-img");
+          if (previewDiv) previewDiv.classList.add("hidden");
+          if (previewImg) previewImg.src = "";
           passwordInput.value = "";
           passwordInput.removeAttribute("required");
           passwordRequired.classList.add("hidden");
@@ -465,29 +482,59 @@
         document.getElementById("close-modal").addEventListener("click", closeModal);
         document.getElementById("cancel-form").addEventListener("click", closeModal);
 
+        // Profile picture preview handler
+        document.getElementById("profile_picture_file").addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          const previewDiv = document.getElementById("profile-picture-preview");
+          const previewImg = document.getElementById("profile-picture-preview-img");
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              previewImg.src = event.target.result;
+              previewDiv.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+          } else {
+            previewDiv.classList.add("hidden");
+          }
+        });
+
         document.getElementById("user-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const formData = new FormData(e.target);
-          const data = Object.fromEntries(formData);
-          const isEdit = !!data.id_user;
-
-          const params = new URLSearchParams();
-          params.append("action", isEdit ? "update" : "create");
-          Object.keys(data).forEach((key) => {
-            if (data[key]) params.append(key, data[key]);
-          });
+          const isEdit = !!formData.get("id_user");
+          const password = formData.get("Password");
+          const profilePicFile = formData.get("profile_picture");
+          const profilePicPath = formData.get("profile_picture_path");
 
           // For create, password is required
-          if (!isEdit && !data.Password) {
+          if (!isEdit && !password) {
             alert("Password is required for new users.");
             return;
+          }
+
+          // Build FormData for API
+          const apiFormData = new FormData();
+          apiFormData.append("action", isEdit ? "update" : "create");
+          apiFormData.append("id_user", formData.get("id_user") || "");
+          apiFormData.append("FirstName", formData.get("FirstName"));
+          apiFormData.append("LastName", formData.get("LastName"));
+          apiFormData.append("username", formData.get("username"));
+          apiFormData.append("ContactNumber", formData.get("ContactNumber"));
+          apiFormData.append("role", formData.get("role"));
+          if (password) apiFormData.append("Password", password);
+          
+          // Add profile picture file if uploaded, otherwise use path
+          if (profilePicFile && profilePicFile instanceof File) {
+            apiFormData.append("profile_picture", profilePicFile);
+          } else if (profilePicPath) {
+            apiFormData.append("profile_picture", profilePicPath);
           }
 
           try {
             await fetchJson(USERS_API, {
               method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: params.toString(),
+              body: apiFormData,
             });
             closeModal();
             loadUsers();

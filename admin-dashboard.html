@@ -261,13 +261,27 @@
               </div>
 
               <div class="md:col-span-1">
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Image path (optional)</label>
-                <input
-                  id="drone-image"
-                  type="text"
-                  placeholder="e.g. drones/1718431536_DJI Mavic 3 pro.jpg"
-                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
-                />
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Drone Image</label>
+                <div class="space-y-2">
+                  <input
+                    type="file"
+                    id="drone-image-file"
+                    name="image"
+                    accept="image/jpeg,image/png,image/jpg,image/gif"
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                  />
+                  <input
+                    type="text"
+                    id="drone-image"
+                    name="image_path"
+                    placeholder="Or enter image path (optional)"
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+                <p class="mt-1 text-[11px] text-slate-500">Upload an image (Max 5MB) or enter a path</p>
+                <div id="drone-image-preview" class="mt-2 hidden">
+                  <img id="drone-image-preview-img" src="" alt="Preview" class="w-24 h-24 object-cover rounded-lg border border-slate-700" />
+                </div>
               </div>
 
               <div class="md:col-span-2">
@@ -579,6 +593,12 @@
         document.getElementById("drone-price").value = drone?.price || "";
         document.getElementById("drone-stock").value = drone?.stock ?? 0;
         document.getElementById("drone-image").value = drone?.image || "";
+        // Clear file input and preview
+        document.getElementById("drone-image-file").value = "";
+        const previewDiv = document.getElementById("drone-image-preview");
+        const previewImg = document.getElementById("drone-image-preview-img");
+        if (previewDiv) previewDiv.classList.add("hidden");
+        if (previewImg) previewImg.src = "";
         document.getElementById("drone-description").value = drone?.description || "";
       }
 
@@ -692,6 +712,23 @@
         }
 
         if (form) {
+          // Image preview handler
+          document.getElementById("drone-image-file").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            const previewDiv = document.getElementById("drone-image-preview");
+            const previewImg = document.getElementById("drone-image-preview-img");
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                previewImg.src = event.target.result;
+                previewDiv.classList.remove("hidden");
+              };
+              reader.readAsDataURL(file);
+            } else {
+              previewDiv.classList.add("hidden");
+            }
+          });
+
           form.addEventListener("submit", (e) => {
             e.preventDefault();
             const status = document.getElementById("form-status");
@@ -702,7 +739,8 @@
             const brand = document.getElementById("drone-brand").value.trim();
             const price = document.getElementById("drone-price").value;
             const stock = document.getElementById("drone-stock").value;
-            const image = document.getElementById("drone-image").value.trim();
+            const imagePath = document.getElementById("drone-image").value.trim();
+            const imageFile = document.getElementById("drone-image-file").files[0];
             const description = document.getElementById("drone-description").value.trim();
 
             if (!name || !type || !price || stock === "") {
@@ -712,7 +750,7 @@
             }
 
             const action = id ? "update" : "create";
-            const formData = new URLSearchParams();
+            const formData = new FormData();
             formData.append("action", action);
             if (id) formData.append("id_drone", id);
             formData.append("name", name);
@@ -720,16 +758,21 @@
             formData.append("brand", brand);
             formData.append("price", price);
             formData.append("stock", stock);
-            formData.append("image", image);
             formData.append("description", description);
+            
+            // Add image file if uploaded, otherwise use path
+            if (imageFile) {
+              formData.append("image", imageFile);
+            } else if (imagePath) {
+              formData.append("image", imagePath);
+            }
 
             status.textContent = "Saving...";
             status.className = "mr-auto text-xs text-slate-300 flex items-center";
 
             fetchJson(DRONES_API, {
               method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: formData.toString(),
+              body: formData,
             })
               .then(() => {
                 status.textContent = "Saved successfully.";
