@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Employee Bookings</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      requireRole("employee", {
+        loginPath: "./login.html",
+        forbiddenPath: "./index.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./employee-dashboard.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <span id="employee-user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Bookings Management</h1>
+            <p class="text-gray-600 mt-1">View and manage rental bookings</p>
+          </div>
+          <button
+            id="create-booking-btn"
+            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold"
+          >
+            + Create New Booking
+          </button>
+        </div>
+
+        <!-- Create Booking Form (Hidden by default) -->
+        <div id="create-form-container" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Create New Booking</h2>
+          <form id="create-booking-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
+                <select
+                  id="create-user-select"
+                  required
+                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="">Select customer...</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Receiver Name</label>
+                <input
+                  type="text"
+                  id="create-receiver-name"
+                  placeholder="Leave empty to use customer name"
+                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Return Date *</label>
+                <input
+                  type="date"
+                  id="create-return-date"
+                  required
+                  min=""
+                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Return Time *</label>
+                <input
+                  type="time"
+                  id="create-return-time"
+                  required
+                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Payment Type *</label>
+                <select
+                  id="create-payment-type"
+                  required
+                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="">Select payment type...</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="GCash">GCash</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Drones *</label>
+              <div id="drones-selection" class="space-y-2">
+                <div class="drone-row flex gap-2 items-end">
+                  <div class="flex-1">
+                    <select
+                      class="drone-select w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select drone...</option>
+                    </select>
+                  </div>
+                  <div class="w-24">
+                    <input
+                      type="number"
+                      min="1"
+                      value="1"
+                      class="drone-quantity w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="remove-drone px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 hidden"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="add-drone-btn"
+                class="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm"
+              >
+                + Add Another Drone
+              </button>
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Create Booking
+              </button>
+              <button
+                type="button"
+                id="cancel-create-btn"
+                class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Search / Filter -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <form id="filter-form" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Search by customer name or username..."
+                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+            <div class="md:w-48">
+              <select
+                id="status-filter"
+                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              >
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Returned">Returned</option>
+                <option value="Returned Damaged">Returned Damaged</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              id="clear-filters"
+              class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+            >
+              Clear
+            </button>
+          </form>
+        </section>
+
+        <!-- Bookings Table -->
+        <section class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Checkout Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-tbody" class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td colspan="8" class="px-6 py-12 text-center text-gray-500">Loading bookings...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const BOOKINGS_API = API_BASE + "/api-bookings.php";
+      const DRONES_API = API_BASE + "/api-drones.php";
+
+      // Fill user label
+      (function () {
+        const user = getCurrentUser();
+        if (user) {
+          const el = document.getElementById("employee-user-label");
+          if (el) {
+            el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
+          }
+        }
+      })();
+
+      // Set min date to tomorrow
+      document.getElementById("create-return-date").min = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+      let usersList = [];
+      let dronesList = [];
+
+      // Load users and drones for create form
+      async function loadFormData() {
+        try {
+          const [usersRes, dronesRes] = await Promise.all([
+            fetch(BOOKINGS_API + "?action=get_users"),
+            fetch(DRONES_API + "?action=list"),
+          ]);
+
+          const usersData = await usersRes.json();
+          const dronesData = await dronesRes.json();
+
+          if (usersData.success) {
+            usersList = usersData.users || [];
+            const select = document.getElementById("create-user-select");
+            select.innerHTML = '<option value="">Select customer...</option>';
+            usersList.forEach((u) => {
+              const opt = document.createElement("option");
+              opt.value = u.id_user;
+              opt.textContent = `${u.FirstName} ${u.LastName} (${u.username})`;
+              select.appendChild(opt);
+            });
+          }
+
+          if (dronesData.success) {
+            dronesList = (dronesData.drones || []).filter((d) => d.stock > 0);
+            updateDroneSelects();
+          }
+        } catch (err) {
+          console.error("Failed to load form data:", err);
+        }
+      }
+
+      function updateDroneSelects() {
+        document.querySelectorAll(".drone-select").forEach((select) => {
+          const currentValue = select.value;
+          select.innerHTML = '<option value="">Select drone...</option>';
+          dronesList.forEach((d) => {
+            const opt = document.createElement("option");
+            opt.value = d.id_drone;
+            opt.textContent = `${d.name} (₱${parseFloat(d.price).toFixed(2)} - Stock: ${d.stock})`;
+            opt.dataset.stock = d.stock;
+            select.appendChild(opt);
+          });
+          if (currentValue) select.value = currentValue;
+        });
+      }
+
+      // Load bookings
+      async function loadBookings(params = {}) {
+        const tbody = document.getElementById("bookings-tbody");
+        tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500">Loading bookings...</td></tr>';
+
+        const query = new URLSearchParams({ action: "list", ...params });
+
+        try {
+          const res = await fetch(BOOKINGS_API + "?" + query.toString());
+          const data = await res.json();
+
+          if (data.success && data.bookings) {
+            const bookings = data.bookings;
+            if (bookings.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500">No bookings found</td></tr>';
+              return;
+            }
+
+            tbody.innerHTML = bookings
+              .map((b) => {
+                const statusClass = {
+                  Accepted: "bg-green-100 text-green-800",
+                  Pending: "bg-yellow-100 text-yellow-800",
+                  Returned: "bg-blue-100 text-blue-800",
+                  "Returned Damaged": "bg-red-100 text-red-800",
+                  Cancelled: "bg-gray-100 text-gray-800",
+                }[b.Status] || "bg-gray-100 text-gray-800";
+
+                const checkoutDate = b.checkout_date
+                  ? new Date(b.checkout_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                  : "N/A";
+                const returnDate = b.return_date
+                  ? new Date(b.return_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                  : "N/A";
+
+                return `
+                  <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${b.id_booked}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900">${b.FirstName || "N/A"} ${b.LastName || ""}</div>
+                      <div class="text-sm text-gray-500">@${b.username || "N/A"}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-sm text-gray-900">${b.item_names || "N/A"}</div>
+                      ${b.quantity ? `<div class="text-xs text-gray-500">Qty: ${b.quantity}</div>` : ""}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${checkoutDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${returnDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600">₱${parseFloat(b.price || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${b.Status || "Pending"}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div class="flex flex-col gap-2">
+                        <select class="status-select w-full rounded-md border-gray-300 text-xs px-2 py-1" data-id="${b.id_booked}">
+                          <option value="Pending" ${b.Status === "Pending" ? "selected" : ""}>Pending</option>
+                          <option value="Accepted" ${b.Status === "Accepted" ? "selected" : ""}>Accepted</option>
+                          <option value="Returned" ${b.Status === "Returned" ? "selected" : ""}>Returned</option>
+                          <option value="Returned Damaged" ${b.Status === "Returned Damaged" ? "selected" : ""}>Returned Damaged</option>
+                          <option value="Cancelled" ${b.Status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                        </select>
+                        <button class="save-status px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs" data-id="${b.id_booked}">
+                          Save
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              })
+              .join("");
+          }
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-red-500">Failed to load bookings</td></tr>';
+        }
+      }
+
+      // Create booking form handlers
+      document.getElementById("create-booking-btn").addEventListener("click", () => {
+        document.getElementById("create-form-container").classList.remove("hidden");
+        loadFormData();
+      });
+
+      document.getElementById("cancel-create-btn").addEventListener("click", () => {
+        document.getElementById("create-form-container").classList.add("hidden");
+        document.getElementById("create-booking-form").reset();
+      });
+
+      document.getElementById("add-drone-btn").addEventListener("click", () => {
+        const container = document.getElementById("drones-selection");
+        const newRow = document.createElement("div");
+        newRow.className = "drone-row flex gap-2 items-end";
+        newRow.innerHTML = `
+          <div class="flex-1">
+            <select class="drone-select w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" required>
+              <option value="">Select drone...</option>
+            </select>
+          </div>
+          <div class="w-24">
+            <input type="number" min="1" value="1" class="drone-quantity w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" required />
+          </div>
+          <button type="button" class="remove-drone px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+            Remove
+          </button>
+        `;
+        container.appendChild(newRow);
+        updateDroneSelects();
+        newRow.querySelector(".remove-drone").addEventListener("click", () => {
+          if (container.children.length > 1) {
+            newRow.remove();
+          }
+        });
+      });
+
+      document.getElementById("drones-selection").addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-drone")) {
+          const container = document.getElementById("drones-selection");
+          if (container.children.length > 1) {
+            e.target.closest(".drone-row").remove();
+          }
+        }
+      });
+
+      document.getElementById("create-booking-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const droneIds = [];
+        const quantities = [];
+
+        document.querySelectorAll(".drone-row").forEach((row) => {
+          const select = row.querySelector(".drone-select");
+          const qty = row.querySelector(".drone-quantity");
+          if (select.value && qty.value) {
+            droneIds.push(select.value);
+            quantities.push(parseInt(qty.value));
+          }
+        });
+
+        if (droneIds.length === 0) {
+          alert("Please select at least one drone.");
+          return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append("action", "create");
+        formData.append("id_user", document.getElementById("create-user-select").value);
+        formData.append("return_date", document.getElementById("create-return-date").value);
+        formData.append("return_time", document.getElementById("create-return-time").value);
+        formData.append("payment_type", document.getElementById("create-payment-type").value);
+        formData.append("receiver_name", document.getElementById("create-receiver-name").value);
+        droneIds.forEach((id) => formData.append("drone_ids[]", id));
+        quantities.forEach((qty) => formData.append("quantities[]", qty));
+
+        try {
+          const res = await fetch(BOOKINGS_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            alert("Booking created successfully!");
+            document.getElementById("create-form-container").classList.add("hidden");
+            document.getElementById("create-booking-form").reset();
+            loadBookings();
+          } else {
+            alert(data.message || "Failed to create booking");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Network error. Please try again.");
+        }
+      });
+
+      // Filter handlers
+      document.getElementById("filter-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const search = document.getElementById("search-input").value.trim();
+        const status = document.getElementById("status-filter").value;
+        loadBookings({ search, status });
+      });
+
+      document.getElementById("clear-filters").addEventListener("click", () => {
+        document.getElementById("search-input").value = "";
+        document.getElementById("status-filter").value = "";
+        loadBookings();
+      });
+
+      // Status update handler
+      document.getElementById("bookings-tbody").addEventListener("click", (e) => {
+        if (e.target.classList.contains("save-status")) {
+          const id = e.target.getAttribute("data-id");
+          const select = e.target.closest("tr").querySelector(`.status-select[data-id="${id}"]`);
+          const status = select.value;
+
+          const formData = new URLSearchParams();
+          formData.append("action", "update_status");
+          formData.append("id_booked", id);
+          formData.append("status", status);
+
+          fetch(BOOKINGS_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                loadBookings();
+              } else {
+                alert(data.message || "Failed to update status");
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              alert("Network error. Please try again.");
+            });
+        }
+      });
+
+      // Initial load
+      loadBookings();
+    </script>
+  </body>
+</html>
+

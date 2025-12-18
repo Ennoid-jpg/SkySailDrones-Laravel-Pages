@@ -19,65 +19,179 @@
       }
     </style>
   </head>
-  <body class="bg-slate-950 text-slate-50 min-h-screen">
-    <!-- Role protection -->
+  <body class="bg-gray-50 min-h-screen">
     <script src="./auth-role.js"></script>
     <script>
-      // Only allow employees to see this page
-      const employeeUser = requireRole("employee", {
+      requireRole("employee", {
         loginPath: "./login.html",
         forbiddenPath: "./index.html",
       });
     </script>
 
     <div class="min-h-screen flex flex-col">
-      <header class="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-slate-800">
-        <a href="./index.html" class="flex items-center gap-2">
-          <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
-        </a>
-        <div class="flex items-center gap-4 text-sm">
-          <span id="employee-user-label" class="text-slate-300"></span>
-          <button
-            onclick="logoutAndRedirect('./login.html')"
-            class="px-3 py-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white font-medium text-xs transition"
-          >
-            Logout
-          </button>
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <span id="employee-user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main class="flex-1 px-6 py-8">
-        <h1 class="text-3xl font-semibold mb-2">Employee Dashboard</h1>
-        <p class="text-slate-300 mb-6">
-          This page is only accessible to users with the <span class="font-semibold">employee</span> role.
-        </p>
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Employee Dashboard</h1>
+        <p class="text-gray-600 mb-8">Welcome! Manage bookings and track rental status.</p>
 
-        <div class="grid gap-6 md:grid-cols-3">
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">My Bookings</h2>
-            <p class="text-sm text-slate-300">
-              Use this area to link to booking management tools or information from your main Laravel app.
-            </p>
-          </section>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total Bookings</p>
+                <p id="stat-total" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
 
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">Assigned Drones</h2>
-            <p class="text-sm text-slate-300">
-              Add links or content related to drones assigned to this employee or current missions.
-            </p>
-          </section>
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Pending Bookings</p>
+                <p id="stat-pending" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
 
-          <section class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-            <h2 class="text-lg font-semibold mb-2">Support</h2>
-            <p class="text-sm text-slate-300">
-              Place quick links to documentation, internal tools, or contact points for admins.
-            </p>
-          </section>
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Accepted Bookings</p>
+                <p id="stat-accepted" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Returned Bookings</p>
+                <p id="stat-returned" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Recent Bookings</h2>
+            <div class="flex items-center space-x-3">
+              <a
+                href="./employee-bookings.html"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Manage Bookings
+              </a>
+            </div>
+          </div>
+
+          <!-- Search and Filter -->
+          <form id="filter-form" class="mb-6 flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Search by customer name or username..."
+                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+            <div class="md:w-48">
+              <select
+                id="status-filter"
+                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              >
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Returned">Returned</option>
+                <option value="Returned Damaged">Returned Damaged</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              id="clear-filters"
+              class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+            >
+              Clear
+            </button>
+          </form>
+
+          <!-- Bookings Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Checkout Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-tbody" class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td colspan="7" class="px-6 py-12 text-center text-gray-500">Loading bookings...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
 
     <script>
+      const API_BASE = 'https://skysaildrone.solof.shop';
+      const DASHBOARD_ENDPOINT = API_BASE + '/api-employee-dashboard.php';
+
       // Fill in user label
       (function () {
         const user = getCurrentUser();
@@ -87,8 +201,85 @@
           el.textContent = `${user.first_name || ""} ${user.last_name || ""} (${user.email})`;
         }
       })();
+
+      // Load dashboard data
+      async function loadDashboard() {
+        const search = document.getElementById('search-input').value;
+        const status = document.getElementById('status-filter').value;
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+
+        try {
+          const response = await fetch(DASHBOARD_ENDPOINT + '?' + params.toString());
+          const data = await response.json();
+
+          if (data.success) {
+            // Update stats
+            document.getElementById('stat-total').textContent = data.stats.total_bookings;
+            document.getElementById('stat-pending').textContent = data.stats.pending_bookings;
+            document.getElementById('stat-accepted').textContent = data.stats.accepted_bookings;
+            document.getElementById('stat-returned').textContent = data.stats.returned_bookings;
+
+            // Update bookings table
+            const tbody = document.getElementById('bookings-tbody');
+            if (data.bookings.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">No bookings found</td></tr>';
+            } else {
+              tbody.innerHTML = data.bookings.map(booking => {
+                const statusClass = {
+                  'Accepted': 'bg-green-100 text-green-800',
+                  'Pending': 'bg-yellow-100 text-yellow-800',
+                  'Returned': 'bg-blue-100 text-blue-800',
+                  'Returned Damaged': 'bg-red-100 text-red-800',
+                  'Cancelled': 'bg-gray-100 text-gray-800'
+                }[booking.Status] || 'bg-gray-100 text-gray-800';
+
+                const checkoutDate = booking.checkout_date ? new Date(booking.checkout_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+                return `
+                  <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${booking.id_booked}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900">${booking.FirstName || 'N/A'} ${booking.LastName || ''}</div>
+                      <div class="text-sm text-gray-500">@${booking.username || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-sm text-gray-900">${booking.item_names || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${checkoutDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600">₱${parseFloat(booking.price || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${booking.Status || 'Pending'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <a href="./employee-bookings.html?id=${booking.id_booked}" class="text-blue-600 hover:text-blue-900">View</a>
+                    </td>
+                  </tr>
+                `;
+              }).join('');
+            }
+          }
+        } catch (error) {
+          console.error(error);
+          document.getElementById('bookings-tbody').innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">Failed to load bookings</td></tr>';
+        }
+      }
+
+      // Filter form handler
+      document.getElementById('filter-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loadDashboard();
+      });
+
+      document.getElementById('clear-filters').addEventListener('click', () => {
+        document.getElementById('search-input').value = '';
+        document.getElementById('status-filter').value = '';
+        loadDashboard();
+      });
+
+      // Initial load
+      loadDashboard();
     </script>
   </body>
-  </html>
-
-
+</html>
