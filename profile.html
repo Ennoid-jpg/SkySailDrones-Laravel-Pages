@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Profile</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-50 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Require login for all user types
+      requireLogin({
+        loginPath: "./login.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header
+        class="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-slate-800"
+      >
+        <a href="./index.html" class="flex items-center gap-2">
+          <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+        </a>
+        <div class="flex items-center gap-4 text-sm">
+          <span id="user-label" class="text-slate-300"></span>
+          <button
+            onclick="logoutAndRedirect('./login.html')"
+            class="px-3 py-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white font-medium text-xs transition"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8 space-y-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-semibold">Profile</h1>
+            <p class="text-slate-300 text-sm">
+              Update your account's profile information and password.
+            </p>
+          </div>
+          <div id="dashboard-link-container" class="flex flex-wrap gap-2">
+            <!-- Dashboard link will be inserted here based on role -->
+          </div>
+        </div>
+
+        <!-- Profile Information Section -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-6 space-y-6">
+          <div>
+            <h2 class="text-xl font-semibold mb-2">Profile Information</h2>
+            <p class="text-slate-400 text-sm">
+              Update your account's profile information and profile picture.
+            </p>
+          </div>
+
+          <form id="profile-form" class="space-y-4" enctype="multipart/form-data">
+            <input type="hidden" id="user-id" name="id_user" />
+
+            <div class="flex flex-col md:flex-row gap-6">
+              <!-- Profile Picture Preview -->
+              <div class="flex-shrink-0">
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                  Profile Picture
+                </label>
+                <div class="relative">
+                  <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800">
+                    <img
+                      id="profile-preview"
+                      src=""
+                      alt="Profile"
+                      class="w-full h-full object-cover"
+                      onerror="this.src='https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg'"
+                    />
+                  </div>
+                  <label
+                    for="profile-picture-input"
+                    class="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center cursor-pointer transition"
+                    title="Change picture"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      ></path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      ></path>
+                    </svg>
+                  </label>
+                  <input
+                    type="file"
+                    id="profile-picture-input"
+                    name="profile_picture"
+                    accept="image/jpeg,image/png,image/jpg,image/gif"
+                    class="hidden"
+                  />
+                </div>
+                <p class="mt-2 text-xs text-slate-500">
+                  Accepted formats: JPEG, PNG, GIF (Max: 2MB)
+                </p>
+              </div>
+
+              <!-- Form Fields -->
+              <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-1">
+                    First Name <span class="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="FirstName"
+                    name="FirstName"
+                    required
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-1">
+                    Last Name <span class="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="LastName"
+                    name="LastName"
+                    required
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-1">
+                    Username (Email) <span class="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-1">
+                    Contact Number <span class="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="ContactNumber"
+                    name="ContactNumber"
+                    required
+                    class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <button
+                type="submit"
+                class="px-6 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm font-medium transition"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Update Password Section -->
+        <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-6 space-y-6">
+          <div>
+            <h2 class="text-xl font-semibold mb-2">Update Password</h2>
+            <p class="text-slate-400 text-sm">
+              Ensure your account is using a long, random password to stay secure.
+            </p>
+          </div>
+
+          <form id="password-form" class="space-y-4">
+            <input type="hidden" id="password-user-id" name="id_user" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  id="current-password"
+                  name="current_password"
+                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">
+                  New Password <span class="text-red-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="new-password"
+                  name="new_password"
+                  minlength="8"
+                  required
+                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-slate-300 mb-1">
+                  Confirm New Password <span class="text-red-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="confirm-password"
+                  name="confirm_password"
+                  minlength="8"
+                  required
+                  class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <button
+                type="submit"
+                class="px-6 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-sm font-medium transition"
+              >
+                Update Password
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const PROFILE_API = API_BASE + "/api-profile.php";
+
+      function getProfilePicUrl(pic) {
+        if (!pic) return "https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg";
+        if (pic.startsWith("http")) return pic;
+        if (pic.startsWith("storage/app/public/")) {
+          return `https://skysaildrone.solof.shop/${pic.replace("storage/app/public/", "storage/")}`;
+        }
+        return `https://skysaildrone.solof.shop/${pic}`;
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadProfile() {
+        const user = getCurrentUser();
+        if (!user || !user.id_user) {
+          console.error("No user ID found");
+          return;
+        }
+
+        try {
+          const data = await fetchJson(PROFILE_API + "?id_user=" + user.id_user);
+          const profileUser = data.user;
+
+          // Populate form fields
+          document.getElementById("user-id").value = profileUser.id_user;
+          document.getElementById("password-user-id").value = profileUser.id_user;
+          document.getElementById("FirstName").value = profileUser.FirstName || "";
+          document.getElementById("LastName").value = profileUser.LastName || "";
+          document.getElementById("username").value = profileUser.username || "";
+          document.getElementById("ContactNumber").value = profileUser.ContactNumber || "";
+
+          // Set profile picture preview
+          const previewImg = document.getElementById("profile-preview");
+          previewImg.src = getProfilePicUrl(profileUser.profile_picture);
+
+          // Update user label
+          const userLabel = document.getElementById("user-label");
+          if (userLabel) {
+            userLabel.textContent = `${profileUser.FirstName} ${profileUser.LastName} (${profileUser.username})`;
+          }
+
+          // Add dashboard link based on role
+          const dashboardContainer = document.getElementById("dashboard-link-container");
+          if (dashboardContainer) {
+            const role = profileUser.role || user.role || "user";
+            if (role === "admin") {
+              dashboardContainer.innerHTML = `
+                <a
+                  href="./admin-dashboard.html"
+                  class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium transition"
+                >
+                  Admin Dashboard
+                </a>
+              `;
+            } else if (role === "employee") {
+              dashboardContainer.innerHTML = `
+                <a
+                  href="./employee-dashboard.html"
+                  class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-xs font-medium transition"
+                >
+                  Employee Dashboard
+                </a>
+              `;
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load profile:", err);
+          alert("Failed to load profile: " + err.message);
+        }
+      }
+
+      // Handle profile picture preview
+      document.getElementById("profile-picture-input").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById("profile-preview").src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Handle profile form submission
+      document.getElementById("profile-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const userId = formData.get("id_user");
+
+        try {
+          const data = await fetchJson(PROFILE_API, {
+            method: "POST",
+            body: formData,
+          });
+
+          // Update localStorage with new user data
+          const user = getCurrentUser();
+          if (user && data.user) {
+            user.FirstName = data.user.FirstName;
+            user.LastName = data.user.LastName;
+            user.username = data.user.username;
+            user.email = data.user.username;
+            user.ContactNumber = data.user.ContactNumber;
+            user.profile_picture = data.user.profile_picture;
+            localStorage.setItem("skysail_user", JSON.stringify(user));
+          }
+
+          // Update preview
+          document.getElementById("profile-preview").src = getProfilePicUrl(data.user.profile_picture);
+
+          alert("Profile updated successfully!");
+          loadProfile(); // Reload to get latest data
+        } catch (err) {
+          alert("Failed to update profile: " + err.message);
+        }
+      });
+
+      // Handle password form submission
+      document.getElementById("password-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append("action", "update_password");
+
+        const newPassword = formData.get("new_password");
+        const confirmPassword = formData.get("confirm_password");
+
+        if (newPassword !== confirmPassword) {
+          alert("New password and confirmation do not match.");
+          return;
+        }
+
+        if (newPassword.length < 8) {
+          alert("New password must be at least 8 characters.");
+          return;
+        }
+
+        try {
+          const params = new URLSearchParams();
+          params.append("action", "update_password");
+          params.append("id_user", formData.get("id_user"));
+          params.append("current_password", formData.get("current_password") || "");
+          params.append("new_password", newPassword);
+          params.append("confirm_password", confirmPassword);
+
+          await fetchJson(PROFILE_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString(),
+          });
+
+          alert("Password updated successfully!");
+          e.target.reset();
+        } catch (err) {
+          alert("Failed to update password: " + err.message);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadProfile();
+      });
+    </script>
+  </body>
+</html>
+
