@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkySail Drones - Dashboard</title>
+    <link rel="icon" href="./images/image-removebg-preview 2.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <script src="./auth-role.js"></script>
+    <script>
+      // Require login for all user types
+      requireLogin({
+        loginPath: "./login.html",
+      });
+    </script>
+
+    <div class="min-h-screen flex flex-col">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-2">
+              <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+              <a
+                href="./profile.html"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm transition"
+              >
+                Profile
+              </a>
+              <span id="user-label" class="text-gray-600"></span>
+              <button
+                onclick="logoutAndRedirect('./login.html')"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <!-- Welcome Card -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+          <h3 id="welcome-message" class="text-3xl font-bold mb-2">Welcome back!</h3>
+          <p class="text-white/90 text-lg">Ready to capture amazing moments? Explore our premium drone collection.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <!-- Active Bookings -->
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Active Bookings</p>
+                <p id="stat-active-bookings" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Bookings -->
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-pink-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total Bookings</p>
+                <p id="stat-total-bookings" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Available Drones -->
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Available Drones</p>
+                <p id="stat-available-drones" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <!-- Browse Drones Card -->
+          <a href="./drones.html" 
+             class="group bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-purple-500">
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition">Browse Drones</h3>
+                <p class="text-gray-600 mt-1">Explore our collection of premium drones</p>
+              </div>
+            </div>
+          </a>
+
+          <!-- My Bookings Card -->
+          <a href="./bookings.html" 
+             class="group bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-pink-500">
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-red-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 group-hover:text-pink-600 transition">My Bookings</h3>
+                <p class="text-gray-600 mt-1">View and manage your drone rentals</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div id="recent-bookings-section" class="bg-white rounded-xl shadow-lg p-8">
+          <h3 class="text-2xl font-bold text-gray-900 mb-6">Recent Bookings</h3>
+          <div id="recent-bookings-list" class="space-y-4">
+            <div class="text-center text-gray-500 py-8">Loading bookings...</div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = "https://skysaildrone.solof.shop";
+      const CLIENT_DASHBOARD_API = API_BASE + "/api-client-dashboard.php";
+
+      function formatMoney(value) {
+        const num = Number(value || 0);
+        return "₱" + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function getStatusClass(status) {
+        if (status === "Accepted") return "bg-green-100 text-green-800";
+        if (status === "Pending") return "bg-yellow-100 text-yellow-800";
+        if (status === "Returned") return "bg-blue-100 text-blue-800";
+        if (status === "Returned Damaged") return "bg-red-100 text-red-800";
+        return "bg-gray-100 text-gray-800";
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Request failed");
+        }
+        return data;
+      }
+
+      async function loadDashboard() {
+        const user = getCurrentUser();
+        if (!user || !user.id_user) {
+          console.error("No user ID found");
+          return;
+        }
+
+        try {
+          const data = await fetchJson(CLIENT_DASHBOARD_API + "?id_user=" + user.id_user);
+
+          // Update welcome message
+          const welcomeMsg = document.getElementById("welcome-message");
+          if (welcomeMsg && data.user) {
+            welcomeMsg.textContent = `Welcome back, ${data.user.FirstName}!`;
+          }
+
+          // Update user label
+          const userLabel = document.getElementById("user-label");
+          if (userLabel && data.user) {
+            userLabel.textContent = `${data.user.FirstName} ${data.user.LastName}`;
+          }
+
+          // Update stats
+          if (data.stats) {
+            document.getElementById("stat-active-bookings").textContent = data.stats.active_bookings || 0;
+            document.getElementById("stat-total-bookings").textContent = data.stats.total_bookings || 0;
+            document.getElementById("stat-available-drones").textContent = data.stats.available_drones || 0;
+          }
+
+          // Update recent bookings
+          const bookingsList = document.getElementById("recent-bookings-list");
+          const bookingsSection = document.getElementById("recent-bookings-section");
+
+          if (data.recent_bookings && data.recent_bookings.length > 0) {
+            bookingsList.innerHTML = "";
+            data.recent_bookings.forEach((booking) => {
+              const bookingDiv = document.createElement("div");
+              bookingDiv.className = "flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition";
+              bookingDiv.innerHTML = `
+                <div class="flex items-center space-x-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-gray-900">${booking.item_names || "Drone Rental"}</p>
+                    <p class="text-sm text-gray-600">Return: ${booking.return_date_formatted || booking.return_date || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(booking.Status)}">
+                    ${booking.Status}
+                  </span>
+                  <p class="text-sm font-semibold text-gray-900 mt-1">${formatMoney(booking.price)}</p>
+                </div>
+              `;
+              bookingsList.appendChild(bookingDiv);
+            });
+          } else {
+            bookingsList.innerHTML = `
+              <div class="text-center py-8">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No bookings yet</h3>
+                <p class="text-gray-600 mb-6">Start renting drones to see your bookings here!</p>
+                <a href="./drones.html" 
+                   class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  Browse Drones
+                </a>
+              </div>
+            `;
+          }
+        } catch (err) {
+          console.error("Failed to load dashboard:", err);
+          document.getElementById("recent-bookings-list").innerHTML = `
+            <div class="text-center text-red-500 py-8">Failed to load dashboard data.</div>
+          `;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadDashboard();
+      });
+    </script>
+  </body>
+</html>
+
