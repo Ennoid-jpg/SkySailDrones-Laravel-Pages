@@ -223,7 +223,8 @@
                     console.log('Registration response:', data);
 
                     if (data.success) {
-                        messageEl.textContent = data.message || 'Registration successful! Redirecting to login...';
+                        const successMessage = data.message || 'Registration successful! Please check your email to verify your account.';
+                        messageEl.innerHTML = successMessage + '<br><br><small class="text-gray-500">Didn\'t receive the email? <a href="#" id="resendLink" class="text-blue-600 hover:underline">Resend verification email</a></small>';
                         messageEl.classList.remove('text-gray-600', 'text-red-600');
                         messageEl.classList.add('text-green-600');
 
@@ -240,10 +241,47 @@
                             localStorage.setItem('skysail_user', JSON.stringify(userToStore));
                         }
 
-                        // Redirect to login page after successful registration
+                        // Hide form and show success message
+                        document.getElementById('registerForm').style.display = 'none';
+                        
+                        // Add resend verification email handler
+                        const resendLink = document.getElementById('resendLink');
+                        if (resendLink) {
+                            resendLink.addEventListener('click', async function(e) {
+                                e.preventDefault();
+                                const resendMessage = document.createElement('div');
+                                resendMessage.className = 'text-sm text-gray-600 mt-2';
+                                resendMessage.textContent = 'Sending...';
+                                messageEl.appendChild(resendMessage);
+                                
+                                try {
+                                    const resendResponse = await fetch(API_BASE + '/api-email-verify.php', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                        },
+                                        body: new URLSearchParams({
+                                            action: 'send',
+                                            email: email,
+                                        }).toString(),
+                                    });
+                                    
+                                    const resendData = await resendResponse.json();
+                                    resendMessage.textContent = resendData.message || 'Verification email sent!';
+                                    resendMessage.classList.remove('text-gray-600');
+                                    resendMessage.classList.add('text-green-600');
+                                } catch (err) {
+                                    resendMessage.textContent = 'Failed to resend email. Please try again later.';
+                                    resendMessage.classList.remove('text-gray-600');
+                                    resendMessage.classList.add('text-red-600');
+                                }
+                            });
+                        }
+
+                        // Redirect to login page after 5 seconds (giving time to check email)
                         setTimeout(() => {
                             window.location.href = './login.html';
-                        }, 1500);
+                        }, 5000);
                     } else {
                         messageEl.textContent = data.message || 'Registration failed. Please try again.';
                         messageEl.classList.remove('text-gray-600', 'text-green-600');
