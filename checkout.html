@@ -332,6 +332,69 @@
             return;
           }
 
+          // === Validate card expiration (must not be in the past) ===
+          const expValue = formData.get("expiration_date"); // format: YYYY-MM
+          if (expValue) {
+            const [expYearStr, expMonthStr] = expValue.split("-");
+            const expYear = parseInt(expYearStr, 10);
+            const expMonth = parseInt(expMonthStr, 10);
+
+            if (!isNaN(expYear) && !isNaN(expMonth)) {
+              const now = new Date();
+              const currentYear = now.getFullYear();
+              const currentMonth = now.getMonth() + 1; // 1-12
+
+              const cardExpired =
+                expYear < currentYear ||
+                (expYear === currentYear && expMonth < currentMonth);
+
+              if (cardExpired) {
+                alert("Your card is expired. Please use a card with a valid expiration date.");
+                return;
+              }
+            }
+          }
+
+          // === Validate stock before checkout ===
+          try {
+            const dronesData = await fetchJson(DRONES_API + "?action=list");
+            const drones = dronesData.drones || dronesData || [];
+            const dronesMap = {};
+            if (Array.isArray(drones)) {
+              drones.forEach((d) => {
+                dronesMap[d.id_drone] = d;
+              });
+            }
+
+            const insufficient = [];
+            for (const [droneId, item] of Object.entries(cart)) {
+              const drone = dronesMap[droneId];
+              if (!drone) continue;
+              const requestedQty = item.quantity || 1;
+              const available = Number(drone.stock || 0);
+              if (requestedQty > available) {
+                insufficient.push(
+                  `${drone.name} - requested ${requestedQty}, only ${available} in stock`
+                );
+              }
+            }
+
+            if (insufficient.length > 0) {
+              alert(
+                "Cannot checkout because some items exceed available stock:\\n\\n" +
+                  insufficient.join("\\n") +
+                  "\\n\\nPlease reduce the quantities in your cart and try again."
+              );
+              return;
+            }
+          } catch (stockErr) {
+            console.error("Stock validation error:", stockErr);
+            alert(
+              "Unable to verify stock levels right now. Please try again in a moment."
+            );
+            return;
+          }
+
           // Build booking data
           const droneIds = Object.keys(cart);
           const quantities = Object.values(cart).map((item) => item.quantity || 1);
