@@ -404,21 +404,14 @@
         // Extract filename from path
         const filename = path.split("/").pop();
         
-        // Handle different path formats - ALL images served from Hostinger
-        if (path.startsWith("drones/")) {
-          // Direct public path - serve from Hostinger
-          return API_BASE + "/" + path;
+        // Use serve-image.php to handle multiple possible locations
+        // This ensures images work regardless of where they're stored
+        if (path.startsWith("drones/") || path.startsWith("storage/app/public/drones/") || path.startsWith("drone-images/")) {
+          return API_BASE + "/serve-image.php?path=" + encodeURIComponent(path);
         }
-        if (path.startsWith("storage/app/public/drones/")) {
-          // Old Laravel storage path - convert to public path
-          return API_BASE + "/drones/" + filename;
-        }
-        // If pointing to drone-images, convert to Hostinger path
-        if (path.startsWith("drone-images/")) {
-          return API_BASE + "/drones/" + filename;
-        }
-        // Fallback - serve from Hostinger
-        return API_BASE + "/uploads/default-drone.png";
+        
+        // For any other path, try serve-image.php
+        return API_BASE + "/serve-image.php?path=" + encodeURIComponent(path);
       }
 
       async function fetchJson(url, options = {}) {
