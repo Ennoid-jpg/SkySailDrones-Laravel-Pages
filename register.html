@@ -56,7 +56,7 @@
                         <p class="text-gray-600">Join SkySail and start your drone adventure</p>
                     </div>
 
-                    <form method="POST" action="#" class="mt-8 space-y-6" onsubmit="alert('This is a static demo. Registration requires backend connection.'); return false;">
+                    <form id="registerForm" method="POST" action="#" class="mt-8 space-y-6">
                         <!-- First Name -->
                         <div>
                             <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -115,7 +115,7 @@
                                  name="password"
                                  required 
                                  autocomplete="new-password"
-                                 placeholder="Create a password" />
+                                 placeholder="Create a password (min 8 characters)" />
                         </div>
 
                         <!-- Confirm Password -->
@@ -130,9 +130,12 @@
                                  placeholder="Confirm your password" />
                         </div>
 
+                        <!-- Status / Error Message -->
+                        <div id="registerMessage" class="text-sm text-center text-gray-600"></div>
+
                         <!-- Submit Button -->
                         <div>
-                            <button type="submit" class="w-full justify-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <button type="submit" id="submitBtn" class="w-full justify-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                                 Create Account
                             </button>
                         </div>
@@ -150,6 +153,114 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            // Hostinger API base and endpoint
+            const API_BASE = 'https://skysaildrone.solof.shop';
+            const REGISTER_ENDPOINT = API_BASE + '/api-register.php';
+
+            // Handle registration submission via API to Hostinger
+            document.getElementById('registerForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const firstName = document.getElementById('first_name').value.trim();
+                const lastName = document.getElementById('last_name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const contactNumber = document.getElementById('contact_number').value.trim();
+                const password = document.getElementById('password').value;
+                const passwordConfirmation = document.getElementById('password_confirmation').value;
+                const messageEl = document.getElementById('registerMessage');
+                const submitBtn = document.getElementById('submitBtn');
+
+                // Clear previous messages
+                messageEl.textContent = '';
+                messageEl.classList.remove('text-red-600', 'text-green-600', 'text-gray-600');
+
+                // Validate input
+                if (!firstName || !lastName || !email || !contactNumber || !password || !passwordConfirmation) {
+                    messageEl.textContent = 'Please fill in all fields.';
+                    messageEl.classList.add('text-red-600');
+                    return;
+                }
+
+                // Validate password match
+                if (password !== passwordConfirmation) {
+                    messageEl.textContent = 'Password and confirmation do not match.';
+                    messageEl.classList.add('text-red-600');
+                    return;
+                }
+
+                // Validate password length
+                if (password.length < 8) {
+                    messageEl.textContent = 'Password must be at least 8 characters long.';
+                    messageEl.classList.add('text-red-600');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.textContent = 'Creating Account...';
+                submitBtn.disabled = true;
+                messageEl.textContent = 'Registering...';
+                messageEl.classList.add('text-gray-600');
+
+                try {
+                    const response = await fetch(REGISTER_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            first_name: firstName,
+                            last_name: lastName,
+                            email: email,
+                            contact_number: contactNumber,
+                            password: password,
+                            password_confirmation: passwordConfirmation,
+                        }).toString(),
+                    });
+
+                    const data = await response.json();
+                    console.log('Registration response:', data);
+
+                    if (data.success) {
+                        messageEl.textContent = data.message || 'Registration successful! Redirecting to login...';
+                        messageEl.classList.remove('text-gray-600', 'text-red-600');
+                        messageEl.classList.add('text-green-600');
+
+                        // Store user data in localStorage (optional - for auto-login)
+                        if (data.user) {
+                            const userToStore = { ...data.user };
+                            // Ensure we have both id and id_user for compatibility
+                            if (userToStore.id_user && !userToStore.id) {
+                                userToStore.id = userToStore.id_user;
+                            }
+                            if (userToStore.id && !userToStore.id_user) {
+                                userToStore.id_user = userToStore.id;
+                            }
+                            localStorage.setItem('skysail_user', JSON.stringify(userToStore));
+                        }
+
+                        // Redirect to login page after successful registration
+                        setTimeout(() => {
+                            window.location.href = './login.html';
+                        }, 1500);
+                    } else {
+                        messageEl.textContent = data.message || 'Registration failed. Please try again.';
+                        messageEl.classList.remove('text-gray-600', 'text-green-600');
+                        messageEl.classList.add('text-red-600');
+                        submitBtn.textContent = 'Create Account';
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    messageEl.textContent = 'Network error. Please check your connection and try again.';
+                    messageEl.classList.remove('text-gray-600', 'text-green-600');
+                    messageEl.classList.add('text-red-600');
+                    submitBtn.textContent = 'Create Account';
+                    submitBtn.disabled = false;
+                }
+            });
+        </script>
     </body>
 </html>
 
