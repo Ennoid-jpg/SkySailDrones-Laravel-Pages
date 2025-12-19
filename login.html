@@ -180,16 +180,44 @@
                         body: new URLSearchParams({ email, password }).toString(),
                     });
 
-                    const data = await response.json();
+                    if (!response.ok) {
+                        const errorText = await response.text().catch(() => '');
+                        let errorData = {};
+                        try {
+                            errorData = JSON.parse(errorText);
+                        } catch (e) {
+                            // Not JSON
+                        }
+                        throw new Error(errorData.message || `Login failed with status ${response.status}`);
+                    }
 
-                    if (response.ok && data.success) {
+                    const data = await response.json();
+                    console.log('Login response:', data);
+
+                    if (data.success) {
                         messageEl.textContent = 'Login successful. Redirecting...';
                         messageEl.classList.remove('text-gray-600');
                         messageEl.classList.add('text-green-600');
 
                         // Store basic user info in localStorage
                         if (data.user) {
-                            localStorage.setItem('skysail_user', JSON.stringify(data.user));
+                            // Ensure we have id_user (map from id if needed for compatibility)
+                            const userToStore = { ...data.user };
+                            if (userToStore.id && !userToStore.id_user) {
+                                userToStore.id_user = userToStore.id;
+                            }
+                            console.log('Storing user:', userToStore);
+                            localStorage.setItem('skysail_user', JSON.stringify(userToStore));
+                            
+                            // Verify it was stored
+                            const stored = localStorage.getItem('skysail_user');
+                            console.log('Stored user:', stored);
+                        } else {
+                            console.error('No user object in response');
+                            messageEl.textContent = 'Login response missing user data.';
+                            messageEl.classList.remove('text-gray-600', 'text-green-600');
+                            messageEl.classList.add('text-red-600');
+                            return;
                         }
 
                         // Redirect based on role
@@ -211,8 +239,8 @@
                         messageEl.classList.add('text-red-600');
                     }
                 } catch (error) {
-                    console.error(error);
-                    messageEl.textContent = 'Network error. Please try again.';
+                    console.error('Login error:', error);
+                    messageEl.textContent = 'Network error. Please try again. Error: ' + (error.message || 'Unknown error');
                     messageEl.classList.remove('text-gray-600', 'text-green-600');
                     messageEl.classList.add('text-red-600');
                 }
