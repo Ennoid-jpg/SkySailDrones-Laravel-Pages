@@ -217,6 +217,7 @@
                   <div class="mt-6">
                     <a
                       href="./checkout.html"
+                      id="proceed-checkout"
                       class="block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-center hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                     >
                       Proceed to Checkout
@@ -252,11 +253,17 @@
             formData.forEach((value, key) => {
               if (key.startsWith("quantities[")) {
                 const droneId = key.match(/\[(\d+)\]/)[1];
-                quantities[droneId] = parseInt(value) || 1;
+                const input = e.target.querySelector(`input[name="quantities[${droneId}]"]`);
+                let qty = parseInt(value) || 1;
+                const maxStock = input ? parseInt(input.getAttribute("max")) || Infinity : Infinity;
+                if (qty > maxStock) {
+                  qty = maxStock;
+                }
+                quantities[droneId] = qty;
               }
             });
 
-            // Update cart
+            // Update cart (clamped to available stock)
             const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
             Object.keys(quantities).forEach((droneId) => {
               if (cart[droneId]) {
@@ -267,6 +274,37 @@
             loadCart();
             alert("Cart updated!");
           });
+
+          const proceedBtn = document.getElementById("proceed-checkout");
+          if (proceedBtn) {
+            proceedBtn.addEventListener("click", (e) => {
+              const form = document.getElementById("cart-form");
+              if (!form) return;
+
+              const inputs = form.querySelectorAll('input[name^="quantities["]');
+              const problems = [];
+
+              inputs.forEach((input) => {
+                const qty = parseInt(input.value) || 1;
+                const maxStock = parseInt(input.getAttribute("max")) || Infinity;
+                if (qty > maxStock) {
+                  const card = input.closest(".flex.items-center");
+                  const nameEl = card ? card.querySelector("h3") : null;
+                  const name = nameEl ? nameEl.textContent.trim() : "Drone";
+                  problems.push(`${name} - requested ${qty}, only ${maxStock} in stock`);
+                }
+              });
+
+              if (problems.length > 0) {
+                e.preventDefault();
+                alert(
+                  "Cannot proceed to checkout because some items exceed available stock:\\n\\n" +
+                    problems.join("\\n") +
+                    "\\n\\nPlease reduce the quantities and update your cart first."
+                );
+              }
+            });
+          }
         } catch (err) {
           console.error(err);
           cartContent.innerHTML = `
