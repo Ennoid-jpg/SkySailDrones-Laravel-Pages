@@ -189,13 +189,7 @@
 
                         // Store basic user info in localStorage
                         if (data.user) {
-                            // Ensure we have id_user (map from id if needed)
-                            const userToStore = { ...data.user };
-                            if (userToStore.id && !userToStore.id_user) {
-                                userToStore.id_user = userToStore.id;
-                            }
-                            console.log("Storing user in localStorage:", userToStore);
-                            localStorage.setItem('skysail_user', JSON.stringify(userToStore));
+                            localStorage.setItem('skysail_user', JSON.stringify(data.user));
                         }
 
                         // Redirect based on role
