@@ -203,12 +203,61 @@
 
       async function loadDashboard() {
         const user = getCurrentUser();
+        console.log("loadDashboard - user object:", user);
+        
         // Support both id_user and id fields
         const userId = user?.id_user || user?.id;
-        if (!user || !userId) {
-          console.error("No user ID found");
+        
+        if (!user) {
+          console.error("No user object found");
           return;
         }
+        
+        if (!userId) {
+          console.error("No user ID found in user object:", user);
+          console.error("Available user fields:", Object.keys(user));
+          
+          // Try to get user ID from users API by email/username
+          if (user.email || user.username) {
+            console.log("Attempting to get user ID from users API");
+            try {
+              const searchTerm = user.email || user.username;
+              const response = await fetch(API_BASE + "/api-users.php?action=list&search=" + encodeURIComponent(searchTerm));
+              const usersData = await response.json().catch(() => ({}));
+              const users = usersData.users || [];
+              
+              if (users.length > 0) {
+                const foundUser = users.find(u => 
+                  (u.email === user.email || u.username === user.email || u.username === user.username)
+                );
+                
+                if (foundUser && foundUser.id_user) {
+                  console.log("Found user ID:", foundUser.id_user);
+                  // Update localStorage with the ID
+                  user.id_user = foundUser.id_user;
+                  user.id = foundUser.id_user;
+                  localStorage.setItem('skysail_user', JSON.stringify(user));
+                  // Retry loading dashboard
+                  console.log("Retrying loadDashboard with user ID");
+                  return loadDashboard();
+                }
+              }
+            } catch (err) {
+              console.error("Failed to fetch user ID from API:", err);
+            }
+          }
+          
+          // If we still don't have an ID, show error
+          document.getElementById("recent-bookings-list").innerHTML = `
+            <div class="text-center text-red-500 py-8">
+              <p>Unable to load dashboard: User ID not found.</p>
+              <p class="text-sm mt-2">Please log out and log in again.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        console.log("Using user ID:", userId);
 
         try {
           const data = await fetchJson(CLIENT_DASHBOARD_API + "?id_user=" + userId);

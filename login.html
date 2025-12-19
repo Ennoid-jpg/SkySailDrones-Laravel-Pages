@@ -203,15 +203,40 @@
                         if (data.user) {
                             // Ensure we have id_user (map from id if needed for compatibility)
                             const userToStore = { ...data.user };
+                            
+                            // Map id to id_user if present
                             if (userToStore.id && !userToStore.id_user) {
                                 userToStore.id_user = userToStore.id;
                             }
+                            
+                            // Also keep id for compatibility
+                            if (userToStore.id_user && !userToStore.id) {
+                                userToStore.id = userToStore.id_user;
+                            }
+                            
                             console.log('Storing user:', userToStore);
+                            console.log('User ID check - id:', userToStore.id, 'id_user:', userToStore.id_user);
+                            
+                            // Warn if no ID is present
+                            if (!userToStore.id && !userToStore.id_user) {
+                                console.error('WARNING: User object has no ID field!', userToStore);
+                            }
+                            
                             localStorage.setItem('skysail_user', JSON.stringify(userToStore));
                             
-                            // Verify it was stored
+                            // Verify it was stored correctly
                             const stored = localStorage.getItem('skysail_user');
-                            console.log('Stored user:', stored);
+                            const parsed = JSON.parse(stored);
+                            console.log('Stored user:', parsed);
+                            console.log('Stored user ID check - id:', parsed.id, 'id_user:', parsed.id_user);
+                            
+                            if (!parsed.id && !parsed.id_user) {
+                                console.error('ERROR: User stored without ID!');
+                                messageEl.textContent = 'Login successful but user ID missing. Please contact support.';
+                                messageEl.classList.remove('text-gray-600', 'text-green-600');
+                                messageEl.classList.add('text-red-600');
+                                return;
+                            }
                         } else {
                             console.error('No user object in response');
                             messageEl.textContent = 'Login response missing user data.';
