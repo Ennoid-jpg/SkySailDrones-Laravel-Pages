@@ -398,22 +398,27 @@
       }
 
       function imageUrlFromPath(path) {
-        if (!path) return "./images/drone.png";
+        if (!path) return API_BASE + "/uploads/default-drone.png";
         if (path.startsWith("http")) return path;
-
-        // Map Laravel's 'drones/...' folder to GitHub Pages 'drone-images/...'
+        
+        // Extract filename from path
+        const filename = path.split("/").pop();
+        
+        // Handle different path formats - ALL images served from Hostinger
         if (path.startsWith("drones/")) {
-          const fileName = path.substring("drones/".length);
-          return "./drone-images/" + fileName;
+          // Direct public path - serve from Hostinger
+          return API_BASE + "/" + path;
         }
-
-        // If already pointing to drone-images, serve from GitHub Pages directly
+        if (path.startsWith("storage/app/public/drones/")) {
+          // Old Laravel storage path - convert to public path
+          return API_BASE + "/drones/" + filename;
+        }
+        // If pointing to drone-images, convert to Hostinger path
         if (path.startsWith("drone-images/")) {
-          return "./" + path;
+          return API_BASE + "/drones/" + filename;
         }
-
-        // Fallback to local placeholder
-        return "./images/drone.png";
+        // Fallback - serve from Hostinger
+        return API_BASE + "/uploads/default-drone.png";
       }
 
       async function fetchJson(url, options = {}) {

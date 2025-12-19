@@ -264,27 +264,27 @@
       const PROFILE_API = API_BASE + "/api-profile.php";
 
       function getProfilePicUrl(pic) {
-        if (!pic) return "https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg";
+        if (!pic) return API_BASE + "/uploads/default-avatar-icon-of-social-media-user-vector.jpg";
         if (pic.startsWith("http")) return pic;
         
         // Extract filename from path
         const filename = pic.split('/').pop();
         
-        // Handle different path formats
-        if (pic.startsWith("storage/app/public/")) {
-          // Try public directory first (new uploads)
-          return `https://skysaildrone.solof.shop/profile_pictures/${filename}`;
+        // Handle different path formats - ALL images served from Hostinger
+        if (pic.startsWith("storage/app/public/profile_pictures/")) {
+          // Old Laravel storage path - convert to public path
+          return API_BASE + "/profile_pictures/" + filename;
         }
         if (pic.startsWith("profile_pictures/")) {
           // Direct public path
-          return `https://skysaildrone.solof.shop/${pic}`;
+          return API_BASE + "/" + pic;
         }
         // If it's just a filename
         if (pic.includes('profile_')) {
-          return `https://skysaildrone.solof.shop/profile_pictures/${filename}`;
+          return API_BASE + "/profile_pictures/" + filename;
         }
-        // Fallback to original path
-        return `https://skysaildrone.solof.shop/${pic}`;
+        // Fallback to Hostinger
+        return API_BASE + "/" + pic;
       }
 
       async function fetchJson(url, options = {}) {

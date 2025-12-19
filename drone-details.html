@@ -157,17 +157,27 @@
       }
 
       function imageUrlFromPath(path) {
-        if (!path) return "./images/drone.png";
+        if (!path) return API_BASE + "/uploads/default-drone.png";
         if (path.startsWith("http")) return path;
+        
+        // Extract filename from path
+        const filename = path.split("/").pop();
+        
+        // Handle different path formats - ALL images served from Hostinger
         if (path.startsWith("drones/")) {
-          const fileName = path.split("/").pop();
-          return "./drone-images/" + fileName;
+          // Direct public path - serve from Hostinger
+          return API_BASE + "/" + path;
         }
         if (path.startsWith("storage/app/public/drones/")) {
-          const fileName = path.split("/").pop();
-          return API_BASE + "/storage/" + fileName;
+          // Old Laravel storage path - convert to public path
+          return API_BASE + "/drones/" + filename;
         }
-        return "./images/drone.png";
+        // If pointing to drone-images, convert to Hostinger path
+        if (path.startsWith("drone-images/")) {
+          return API_BASE + "/drones/" + filename;
+        }
+        // Fallback - serve from Hostinger
+        return API_BASE + "/uploads/default-drone.png";
       }
 
       function updateCartCount() {
