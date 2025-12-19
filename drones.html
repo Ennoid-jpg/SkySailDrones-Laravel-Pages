@@ -25,7 +25,8 @@
       // Require login for all user types - check after DOM is ready
       document.addEventListener("DOMContentLoaded", () => {
         const user = getCurrentUser();
-        if (!user || (!user.id_user && !user.username)) {
+        // Check for id_user, id, or username (handle different API response formats)
+        if (!user || (!user.id_user && !user.id && !user.username)) {
           window.location.href = "./login.html";
           return;
         }

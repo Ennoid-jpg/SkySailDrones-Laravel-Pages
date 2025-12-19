@@ -22,11 +22,11 @@
   <body class="bg-slate-950 text-slate-50 min-h-screen">
     <script src="./auth-role.js"></script>
     <script>
-      // Require login for all user types
       // Require login for all user types - check after DOM is ready
       document.addEventListener("DOMContentLoaded", () => {
         const user = getCurrentUser();
-        if (!user || (!user.id_user && !user.username)) {
+        // Check for id_user, id, or username (handle different API response formats)
+        if (!user || (!user.id_user && !user.id && !user.username)) {
           window.location.href = "./login.html";
           return;
         }
@@ -283,13 +283,15 @@
 
       async function loadProfile() {
         const user = getCurrentUser();
-        if (!user || !user.id_user) {
+        // Support both id_user and id fields
+        const userId = user?.id_user || user?.id;
+        if (!user || !userId) {
           console.error("No user ID found");
           return;
         }
 
         try {
-          const data = await fetchJson(PROFILE_API + "?id_user=" + user.id_user);
+          const data = await fetchJson(PROFILE_API + "?id_user=" + userId);
           const profileUser = data.user;
 
           // Populate form fields
