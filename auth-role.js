@@ -8,7 +8,12 @@ function getCurrentUser() {
     try {
         const raw = localStorage.getItem(SKYSAIL_USER_KEY);
         if (!raw) return null;
-        return JSON.parse(raw);
+        const user = JSON.parse(raw);
+        // Return user if it's a valid object (has at least id_user or username)
+        if (user && typeof user === 'object' && (user.id_user || user.username)) {
+            return user;
+        }
+        return null;
     } catch (e) {
         console.error('Failed to parse user from localStorage', e);
         return null;
@@ -28,8 +33,10 @@ function requireLogin(options = {}) {
     } = options;
 
     const user = getCurrentUser();
-    if (!user) {
+    // Check if user exists and has at least an id_user or username
+    if (!user || (!user.id_user && !user.username)) {
         window.location.href = loginPath;
+        return null;
     }
     return user;
 }

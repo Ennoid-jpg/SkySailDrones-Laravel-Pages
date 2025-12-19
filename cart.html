@@ -22,9 +22,15 @@
   <body class="bg-gray-50 text-gray-900 min-h-screen">
     <script src="./auth-role.js"></script>
     <script>
-      // Require login for all user types
-      requireLogin({
-        loginPath: "./login.html",
+      // Require login for all user types - check after DOM is ready
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (!user || (!user.id_user && !user.username)) {
+          console.log("No user found, redirecting to login");
+          window.location.href = "./login.html";
+          return;
+        }
+        console.log("User authenticated:", user);
       });
     </script>
 

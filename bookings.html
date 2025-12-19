@@ -23,8 +23,13 @@
     <script src="./auth-role.js"></script>
     <script>
       // Require login for all user types
-      requireLogin({
-        loginPath: "./login.html",
+      // Require login for all user types - check after DOM is ready
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = getCurrentUser();
+        if (!user || (!user.id_user && !user.username)) {
+          window.location.href = "./login.html";
+          return;
+        }
       });
     </script>
 
