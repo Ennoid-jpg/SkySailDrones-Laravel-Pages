@@ -7,15 +7,26 @@ const SKYSAIL_USER_KEY = 'skysail_user';
 function getCurrentUser() {
     try {
         const raw = localStorage.getItem(SKYSAIL_USER_KEY);
-        if (!raw) return null;
+        if (!raw) {
+            console.log('No user data in localStorage');
+            return null;
+        }
         const user = JSON.parse(raw);
+        console.log('Parsed user from localStorage:', user);
+        
         // Return user if it's a valid object (has at least id_user, id, or username)
-        if (user && typeof user === 'object' && (user.id_user || user.id || user.username)) {
-            return user;
+        if (user && typeof user === 'object') {
+            // Check for any identifier
+            if (user.id_user || user.id || user.username || user.email) {
+                return user;
+            }
+            console.warn('User object exists but has no valid identifier:', user);
         }
         return null;
     } catch (e) {
         console.error('Failed to parse user from localStorage', e);
+        // Clear corrupted data
+        localStorage.removeItem(SKYSAIL_USER_KEY);
         return null;
     }
 }

@@ -24,12 +24,28 @@
     <script>
       // Require login for all user types - check after DOM is ready
       document.addEventListener("DOMContentLoaded", () => {
-        const user = getCurrentUser();
-        // Check for id_user, id, or username (handle different API response formats)
-        if (!user || (!user.id_user && !user.id && !user.username)) {
-          window.location.href = "./login.html";
-          return;
-        }
+        // Small delay to ensure localStorage is fully available after redirect
+        setTimeout(() => {
+          const user = getCurrentUser();
+          console.log("Dashboard auth check - user:", user);
+          console.log("localStorage skysail_user:", localStorage.getItem('skysail_user'));
+          
+          // Check for id_user, id, username, or email (handle different API response formats)
+          const hasValidUser = user && (user.id_user || user.id || user.username || user.email);
+          
+          if (!hasValidUser) {
+            console.log("No valid user found, redirecting to login");
+            // Prevent redirect loop
+            if (!window.location.pathname.includes('login.html')) {
+              window.location.href = "./login.html";
+            }
+            return;
+          }
+          
+          console.log("User authenticated, loading dashboard");
+          // Load dashboard data only if authenticated
+          loadDashboard();
+        }, 100);
       });
     </script>
 
@@ -268,10 +284,6 @@
           `;
         }
       }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        loadDashboard();
-      });
     </script>
   </body>
 </html>
