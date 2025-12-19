@@ -217,9 +217,33 @@
                             console.log('Storing user:', userToStore);
                             console.log('User ID check - id:', userToStore.id, 'id_user:', userToStore.id_user);
                             
-                            // Warn if no ID is present
+                            // If no ID is present, try to fetch it from users API
                             if (!userToStore.id && !userToStore.id_user) {
-                                console.error('WARNING: User object has no ID field!', userToStore);
+                                console.warn('WARNING: User object has no ID field! Attempting to fetch from API...', userToStore);
+                                
+                                // Try to get user ID from users API
+                                if (userToStore.email || userToStore.username) {
+                                    try {
+                                        const searchTerm = userToStore.email || userToStore.username;
+                                        const usersResponse = await fetch(API_BASE + '/api-users.php?action=list&search=' + encodeURIComponent(searchTerm));
+                                        const usersData = await usersResponse.json().catch(() => ({}));
+                                        const users = usersData.users || [];
+                                        
+                                        if (users.length > 0) {
+                                            const foundUser = users.find(u => 
+                                                (u.email === userToStore.email || u.username === userToStore.email || u.username === userToStore.username)
+                                            );
+                                            
+                                            if (foundUser && foundUser.id_user) {
+                                                console.log('Found user ID from API:', foundUser.id_user);
+                                                userToStore.id_user = foundUser.id_user;
+                                                userToStore.id = foundUser.id_user;
+                                            }
+                                        }
+                                    } catch (err) {
+                                        console.error('Failed to fetch user ID from API:', err);
+                                    }
+                                }
                             }
                             
                             localStorage.setItem('skysail_user', JSON.stringify(userToStore));
@@ -231,8 +255,8 @@
                             console.log('Stored user ID check - id:', parsed.id, 'id_user:', parsed.id_user);
                             
                             if (!parsed.id && !parsed.id_user) {
-                                console.error('ERROR: User stored without ID!');
-                                messageEl.textContent = 'Login successful but user ID missing. Please contact support.';
+                                console.error('ERROR: User stored without ID after attempting to fetch!');
+                                messageEl.textContent = 'Login successful but unable to retrieve user ID. Please try again.';
                                 messageEl.classList.remove('text-gray-600', 'text-green-600');
                                 messageEl.classList.add('text-red-600');
                                 return;
