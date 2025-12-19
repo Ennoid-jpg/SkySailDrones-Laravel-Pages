@@ -266,9 +266,24 @@
       function getProfilePicUrl(pic) {
         if (!pic) return "https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg";
         if (pic.startsWith("http")) return pic;
+        
+        // Extract filename from path
+        const filename = pic.split('/').pop();
+        
+        // Handle different path formats
         if (pic.startsWith("storage/app/public/")) {
-          return `https://skysaildrone.solof.shop/${pic.replace("storage/app/public/", "storage/")}`;
+          // Try public directory first (new uploads)
+          return `https://skysaildrone.solof.shop/profile_pictures/${filename}`;
         }
+        if (pic.startsWith("profile_pictures/")) {
+          // Direct public path
+          return `https://skysaildrone.solof.shop/${pic}`;
+        }
+        // If it's just a filename
+        if (pic.includes('profile_')) {
+          return `https://skysaildrone.solof.shop/profile_pictures/${filename}`;
+        }
+        // Fallback to original path
         return `https://skysaildrone.solof.shop/${pic}`;
       }
 
