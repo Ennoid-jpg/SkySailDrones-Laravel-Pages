@@ -359,12 +359,27 @@
         e.preventDefault();
         const formData = new FormData(e.target);
         const userId = formData.get("id_user");
+        const profilePictureFile = formData.get("profile_picture");
+        
+        console.log("Submitting profile update...");
+        console.log("User ID:", userId);
+        console.log("Profile picture file:", profilePictureFile ? profilePictureFile.name : "No file selected");
 
         try {
-          const data = await fetchJson(PROFILE_API, {
+          // For file uploads, don't set Content-Type - let browser set it with boundary
+          const response = await fetch(PROFILE_API, {
             method: "POST",
             body: formData,
+            // Don't set Content-Type header - browser will set it automatically with boundary for multipart/form-data
           });
+          
+          console.log("Response status:", response.status);
+          const data = await response.json().catch(() => ({}));
+          console.log("Response data:", data);
+          
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Request failed");
+          }
 
           // Update localStorage with new user data
           const user = getCurrentUser();
@@ -375,15 +390,19 @@
             user.email = data.user.username;
             user.ContactNumber = data.user.ContactNumber;
             user.profile_picture = data.user.profile_picture;
+            console.log("Updated profile picture path:", data.user.profile_picture);
             localStorage.setItem("skysail_user", JSON.stringify(user));
           }
 
           // Update preview
-          document.getElementById("profile-preview").src = getProfilePicUrl(data.user.profile_picture);
+          const newPicUrl = getProfilePicUrl(data.user.profile_picture);
+          console.log("New profile picture URL:", newPicUrl);
+          document.getElementById("profile-preview").src = newPicUrl;
 
           alert("Profile updated successfully!");
           loadProfile(); // Reload to get latest data
         } catch (err) {
+          console.error("Profile update error:", err);
           alert("Failed to update profile: " + err.message);
         }
       });
