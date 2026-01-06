@@ -249,6 +249,36 @@
       const BOOKINGS_API = API_BASE + "/api-bookings.php";
       const DRONES_API = API_BASE + "/api-drones.php";
 
+      function calculatePenalty(booking) {
+        // Only calculate penalty if booking is not returned
+        if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        if (!booking.return_date) {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        const returnDate = new Date(booking.return_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        returnDate.setHours(0, 0, 0, 0);
+
+        // Check if overdue
+        if (returnDate >= today) {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        // Calculate days overdue
+        const daysOverdue = Math.floor((today - returnDate) / (1000 * 60 * 60 * 24));
+        
+        // Penalty: 10% of booking price per day overdue
+        const penaltyRate = 0.1; // 10% per day
+        const penalty = parseFloat(booking.price || 0) * penaltyRate * daysOverdue;
+
+        return { penalty, daysOverdue };
+      }
+
       // Fill user label
       (function () {
         const user = getCurrentUser();
@@ -333,6 +363,9 @@
 
             tbody.innerHTML = bookings
               .map((b) => {
+                const penaltyInfo = calculatePenalty(b);
+                const totalAmount = parseFloat(b.price || 0) + penaltyInfo.penalty;
+                
                 const statusClass = {
                   Accepted: "bg-green-100 text-green-800",
                   Pending: "bg-yellow-100 text-yellow-800",
@@ -358,10 +391,15 @@
                     <td class="px-6 py-4">
                       <div class="text-sm text-gray-900">${b.item_names || "N/A"}</div>
                       ${b.quantity ? `<div class="text-xs text-gray-500">Qty: ${b.quantity}</div>` : ""}
+                      ${penaltyInfo.daysOverdue > 0 ? `<div class="text-xs text-red-600 font-semibold mt-1">⚠️ Overdue: ${penaltyInfo.daysOverdue} day${penaltyInfo.daysOverdue > 1 ? 's' : ''}</div>` : ""}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${checkoutDate}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${returnDate}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600">₱${parseFloat(b.price || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <div class="font-semibold text-purple-600">₱${parseFloat(b.price || 0).toFixed(2)}</div>
+                      ${penaltyInfo.penalty > 0 ? `<div class="text-red-600 text-xs">Penalty: ₱${penaltyInfo.penalty.toFixed(2)}</div>` : ""}
+                      ${penaltyInfo.penalty > 0 ? `<div class="font-semibold text-purple-700 mt-1">Total: ₱${totalAmount.toFixed(2)}</div>` : ""}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${b.Status || "Pending"}</span>
                     </td>
