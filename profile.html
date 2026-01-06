@@ -41,6 +41,13 @@
           <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
         </a>
         <div class="flex items-center gap-4 text-sm">
+          <button
+            type="button"
+            onclick="window.history.back()"
+            class="px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium text-xs transition"
+          >
+            Back
+          </button>
           <span id="user-label" class="text-slate-300"></span>
           <button
             onclick="logoutAndRedirect('./login.html')"
