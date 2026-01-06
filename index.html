@@ -110,6 +110,30 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-4">
+                <div class="flex flex-col space-y-2 pt-2 border-t border-slate-700 mt-2">
+                    <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Enterprise
+                    </a>
+                    <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Agriculture
+                    </a>
+                    <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Cinematic
+                    </a>
+                    <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Explore
+                    </a>
+                    <a href="./login.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Login
+                    </a>
+                    <a href="./cart.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Cart
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -140,6 +164,17 @@
         </a>
     </div>
     </div>
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
 </body>
 </html>
 
