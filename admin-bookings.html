@@ -83,6 +83,18 @@
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
+            <div class="w-full md:w-48">
+              <select
+                id="sort-status"
+                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+              >
+                <option value="">Sort by Status</option>
+                <option value="status-asc">Status: A-Z</option>
+                <option value="status-desc">Status: Z-A</option>
+                <option value="date-desc">Date: Newest First</option>
+                <option value="date-asc">Date: Oldest First</option>
+              </select>
+            </div>
             <button
               type="submit"
               class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-xs font-medium"
@@ -252,6 +264,48 @@
         return data;
       }
 
+      function sortBookings(bookings, sortBy) {
+        if (!sortBy) return bookings;
+
+        const statusOrder = {
+          "Pending": 1,
+          "Accepted": 2,
+          "Returned": 3,
+          "Returned Damaged": 4,
+          "Cancelled": 5
+        };
+
+        const sorted = [...bookings];
+
+        if (sortBy === "status-asc") {
+          sorted.sort((a, b) => {
+            const orderA = statusOrder[a.Status] || 99;
+            const orderB = statusOrder[b.Status] || 99;
+            return orderA - orderB;
+          });
+        } else if (sortBy === "status-desc") {
+          sorted.sort((a, b) => {
+            const orderA = statusOrder[a.Status] || 99;
+            const orderB = statusOrder[b.Status] || 99;
+            return orderB - orderA;
+          });
+        } else if (sortBy === "date-desc") {
+          sorted.sort((a, b) => {
+            const dateA = new Date(a.checkout_date || 0);
+            const dateB = new Date(b.checkout_date || 0);
+            return dateB - dateA;
+          });
+        } else if (sortBy === "date-asc") {
+          sorted.sort((a, b) => {
+            const dateA = new Date(a.checkout_date || 0);
+            const dateB = new Date(b.checkout_date || 0);
+            return dateA - dateB;
+          });
+        }
+
+        return sorted;
+      }
+
       async function loadBookings(params = {}) {
         const tbody = document.getElementById("bookings-tbody");
         tbody.innerHTML =
@@ -261,7 +315,11 @@
 
         try {
           const data = await fetchJson(BOOKINGS_API + "?" + query.toString());
-          const bookings = data.bookings || [];
+          let bookings = data.bookings || [];
+          
+          // Apply sorting
+          const sortBy = document.getElementById("sort-status")?.value || "";
+          bookings = sortBookings(bookings, sortBy);
 
           if (bookings.length === 0) {
             tbody.innerHTML =
@@ -367,7 +425,14 @@
         document.getElementById("clear-filters").addEventListener("click", () => {
           document.getElementById("search-input").value = "";
           document.getElementById("status-filter").value = "";
+          document.getElementById("sort-status").value = "";
           loadBookings();
+        });
+
+        document.getElementById("sort-status").addEventListener("change", () => {
+          const search = document.getElementById("search-input").value.trim();
+          const status = document.getElementById("status-filter").value;
+          loadBookings({ search, status });
         });
 
         document.getElementById("bookings-tbody").addEventListener("click", (e) => {
