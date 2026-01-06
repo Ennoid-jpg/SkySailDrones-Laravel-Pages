@@ -157,6 +157,7 @@
     <script>
       const API_BASE = "https://skysaildrone.solof.shop";
       const DRONES_API = API_BASE + "/api-drones.php";
+      let currentDrone = null; // store currently loaded drone for stock checks
 
       function formatMoney(value) {
         const num = Number(value || 0);
@@ -211,6 +212,9 @@
             return;
           }
 
+          // Store globally for later cart validation
+          currentDrone = drone;
+
           // Populate drone details
           document.getElementById("drone-image").src = imageUrlFromPath(drone.image);
           document.getElementById("drone-type").textContent = drone.type;
@@ -259,16 +263,42 @@
           e.preventDefault();
           const urlParams = new URLSearchParams(window.location.search);
           const droneId = urlParams.get("id");
-          const quantity = parseInt(document.getElementById("quantity").value) || 1;
+          let quantity = parseInt(document.getElementById("quantity").value) || 1;
+
+          // If we don't have drone data for some reason, just fall back to simple behavior
+          const maxStock = currentDrone ? parseInt(currentDrone.stock, 10) || 0 : 0;
+          if (currentDrone && maxStock <= 0) {
+            alert("This drone is currently out of stock.");
+            return;
+          }
+
+          // Clamp requested quantity to available stock
+          if (currentDrone && quantity > maxStock) {
+            quantity = maxStock;
+          }
 
           // Get cart from localStorage
           const cart = JSON.parse(localStorage.getItem("skysail_cart") || "{}");
 
-          // Add or update item in cart
-          if (cart[droneId]) {
-            cart[droneId].quantity += quantity;
+          // Add or update item in cart, but never exceed available stock
+          const existingQty = cart[droneId]?.quantity || 0;
+
+          if (currentDrone) {
+            if (existingQty >= maxStock) {
+              alert("You already have the maximum available quantity of this drone in your cart.");
+              return;
+            }
+
+            let newQty = existingQty + quantity;
+            if (newQty > maxStock) {
+              newQty = maxStock;
+              alert("Quantity adjusted to the maximum available stock for this drone.");
+            }
+
+            cart[droneId] = { quantity: newQty };
           } else {
-            cart[droneId] = { quantity: quantity };
+            // Fallback if for some reason currentDrone is not set
+            cart[droneId] = { quantity: existingQty + quantity };
           }
 
           // Save cart
