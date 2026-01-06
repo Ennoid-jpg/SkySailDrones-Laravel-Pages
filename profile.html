@@ -366,6 +366,11 @@
         const formData = new FormData(e.target);
         const userId = formData.get("id_user");
         const profilePictureFile = formData.get("profile_picture");
+
+        // If no new profile picture was selected, remove the field so the API doesn't treat it as an upload error
+        if (!profilePictureFile || (profilePictureFile instanceof File && profilePictureFile.size === 0)) {
+          formData.delete("profile_picture");
+        }
         
         console.log("Submitting profile update...");
         console.log("User ID:", userId);
