@@ -103,6 +103,30 @@
         return "bg-gray-100 text-gray-800";
       }
 
+      function formatItemsWithQuantities(booking) {
+        if (!booking.item_names) {
+          return booking.quantity ? `Drone Rental (x${booking.quantity})` : "Drone Rental";
+        }
+
+        const itemNames = booking.item_names.split(',').map(name => name.trim());
+        const itemQuantities = booking.item_quantities 
+          ? booking.item_quantities.split(',').map(qty => qty.trim())
+          : [];
+
+        if (itemQuantities.length === 0 || itemQuantities.length !== itemNames.length) {
+          // Fallback: show total quantity if quantities don't match
+          return booking.quantity 
+            ? `${booking.item_names} (Total: ${booking.quantity})`
+            : booking.item_names;
+        }
+
+        // Combine names with quantities: "ATOM SE (x1), ASTRO (x2)"
+        return itemNames.map((name, index) => {
+          const qty = itemQuantities[index] || '1';
+          return `${name} (x${qty})`;
+        }).join(', ');
+      }
+
       function calculatePenalty(booking) {
         // Only calculate penalty if booking is not returned
         if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
@@ -197,11 +221,10 @@
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-xl font-bold text-gray-900">${booking.item_names || "Drone Rental"}</h3>
+                    <h3 class="text-xl font-bold text-gray-900">${formatItemsWithQuantities(booking)}</h3>
                     <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
                       <span>📅 Checkout: ${formatDate(booking.checkout_date)}</span>
                       <span>🔄 Return: ${formatDate(booking.return_date)} at ${booking.return_time || ""}</span>
-                      <span>📦 Quantity: ${booking.quantity || 1}</span>
                       ${penaltyInfo.daysOverdue > 0 ? `<span class="text-red-600 font-semibold">⚠️ Overdue: ${penaltyInfo.daysOverdue} day${penaltyInfo.daysOverdue > 1 ? 's' : ''}</span>` : ''}
                     </div>
                   </div>
