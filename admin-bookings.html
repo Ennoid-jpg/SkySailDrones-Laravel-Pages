@@ -148,6 +148,30 @@
         });
       }
 
+      function formatItemsWithQuantities(booking) {
+        if (!booking.item_names) {
+          return booking.quantity ? `Drone Rental (x${booking.quantity})` : "Drone Rental";
+        }
+
+        const itemNames = booking.item_names.split(',').map(name => name.trim());
+        const itemQuantities = booking.item_quantities 
+          ? booking.item_quantities.split(',').map(qty => qty.trim())
+          : [];
+
+        if (itemQuantities.length === 0 || itemQuantities.length !== itemNames.length) {
+          // Fallback: show total quantity if quantities don't match
+          return booking.quantity 
+            ? `${booking.item_names} (Total: ${booking.quantity})`
+            : booking.item_names;
+        }
+
+        // Combine names with quantities: "ATOM SE (x1), ASTRO (x2)"
+        return itemNames.map((name, index) => {
+          const qty = itemQuantities[index] || '1';
+          return `${name} (x${qty})`;
+        }).join(', ');
+      }
+
       function calculatePenalty(booking) {
         // Only calculate penalty if booking is not returned
         if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
@@ -229,8 +253,7 @@
                 <div class="text-xs text-slate-400">${b.username}</div>
               </td>
               <td class="px-4 py-3 text-xs">
-                <div class="font-medium">${b.item_names || "Drone Rental"}</div>
-                <div class="text-slate-400">Qty: ${b.quantity}</div>
+                <div class="font-medium">${formatItemsWithQuantities(b)}</div>
                 ${penaltyInfo.daysOverdue > 0 ? `<div class="text-red-400 font-semibold mt-1">⚠️ Overdue: ${penaltyInfo.daysOverdue} day${penaltyInfo.daysOverdue > 1 ? 's' : ''}</div>` : ''}
               </td>
               <td class="px-4 py-3 text-xs">
