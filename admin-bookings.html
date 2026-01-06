@@ -148,6 +148,36 @@
         });
       }
 
+      function calculatePenalty(booking) {
+        // Only calculate penalty if booking is not returned
+        if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        if (!booking.return_date) {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        const returnDate = new Date(booking.return_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        returnDate.setHours(0, 0, 0, 0);
+
+        // Check if overdue
+        if (returnDate >= today) {
+          return { penalty: 0, daysOverdue: 0 };
+        }
+
+        // Calculate days overdue
+        const daysOverdue = Math.floor((today - returnDate) / (1000 * 60 * 60 * 24));
+        
+        // Penalty: 10% of booking price per day overdue
+        const penaltyRate = 0.1; // 10% per day
+        const penalty = parseFloat(booking.price || 0) * penaltyRate * daysOverdue;
+
+        return { penalty, daysOverdue };
+      }
+
       async function fetchJson(url, options = {}) {
         const res = await fetch(url, options);
         const data = await res.json().catch(() => ({}));
@@ -176,6 +206,9 @@
 
           tbody.innerHTML = "";
           bookings.forEach((b) => {
+            const penaltyInfo = calculatePenalty(b);
+            const totalAmount = parseFloat(b.price || 0) + penaltyInfo.penalty;
+            
             const tr = document.createElement("tr");
             tr.className = "hover:bg-slate-900/60 transition";
 
@@ -198,6 +231,7 @@
               <td class="px-4 py-3 text-xs">
                 <div class="font-medium">${b.item_names || "Drone Rental"}</div>
                 <div class="text-slate-400">Qty: ${b.quantity}</div>
+                ${penaltyInfo.daysOverdue > 0 ? `<div class="text-red-400 font-semibold mt-1">⚠️ Overdue: ${penaltyInfo.daysOverdue} day${penaltyInfo.daysOverdue > 1 ? 's' : ''}</div>` : ''}
               </td>
               <td class="px-4 py-3 text-xs">
                 <div>${b.return_date || ""} ${b.return_time || ""}</div>
@@ -208,8 +242,10 @@
                   ${b.Status}
                 </span>
               </td>
-              <td class="px-4 py-3 text-sm font-semibold text-purple-300">
-                ${formatMoney(b.price)}
+              <td class="px-4 py-3 text-sm">
+                <div class="font-semibold text-purple-300">${formatMoney(b.price)}</div>
+                ${penaltyInfo.penalty > 0 ? `<div class="text-red-400 text-xs">Penalty: ${formatMoney(penaltyInfo.penalty)}</div>` : ''}
+                ${penaltyInfo.penalty > 0 ? `<div class="font-semibold text-purple-200 mt-1">Total: ${formatMoney(totalAmount)}</div>` : ''}
               </td>
               <td class="px-4 py-3 text-xs">
                 <div class="flex flex-col gap-1">
