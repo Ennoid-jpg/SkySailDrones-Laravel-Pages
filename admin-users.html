@@ -429,7 +429,7 @@
                     >
                       Set as Protected
                     </button>
-                  ` : isProtectedAdmin ? `
+                  ` : isProtectedAdmin && adminCount > 1 ? `
                     <button
                       class="remove-protected px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-[11px] font-medium"
                       data-id="${u.id_user}"
@@ -437,6 +437,10 @@
                     >
                       Remove Protection
                     </button>
+                  ` : isProtectedAdmin && adminCount === 1 ? `
+                    <span class="text-amber-400 text-[11px]" title="Cannot remove protection - this is the only admin">
+                      Last Admin (Protected)
+                    </span>
                   ` : ''}
                 </div>
               </td>
@@ -629,19 +633,29 @@
               const adminUsers = users.filter(u => u.role === 'admin');
               
               if (adminUsers.length <= 1) {
-                alert("Cannot remove protection. This is the only admin account.");
+                alert("Cannot remove protection. This is the only admin account and must remain protected.");
                 return;
               }
               
-              if (confirm("Remove protection from this admin account? You can still delete it if other admins exist.")) {
+              // Double check - if this is the last admin, prevent removal
+              const userToUnprotect = users.find(u => u.id_user == id);
+              if (userToUnprotect && userToUnprotect.role === 'admin' && adminUsers.length === 1) {
+                alert("Cannot remove protection from the last admin account. At least one admin must remain protected.");
+                return;
+              }
+              
+              if (confirm("Remove protection from this admin account? Another admin will be automatically set as protected.")) {
                 setProtectedAdminId(null);
                 // Auto-set the first remaining admin as protected
                 const remainingAdmins = adminUsers.filter(u => u.id_user != id);
                 if (remainingAdmins.length > 0) {
                   setProtectedAdminId(remainingAdmins[0].id_user);
+                  loadUsers();
+                  alert("Protection removed. " + remainingAdmins[0].FirstName + " " + remainingAdmins[0].LastName + " has been set as protected.");
+                } else {
+                  loadUsers();
+                  alert("Protection removed.");
                 }
-                loadUsers();
-                alert("Protection removed. Another admin has been set as protected.");
               }
             } catch (err) {
               alert("Error: " + err.message);
