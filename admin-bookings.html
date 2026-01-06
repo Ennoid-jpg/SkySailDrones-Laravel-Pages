@@ -89,7 +89,8 @@
                 class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
               >
                 <option value="">Sort by Status</option>
-                <option value="status-asc">Status: A-Z</option>
+                <option value="status-alphabetical">Status: A-Z (Alphabetical)</option>
+                <option value="status-workflow">Status: Workflow Order</option>
                 <option value="status-desc">Status: Z-A</option>
                 <option value="date-desc">Date: Newest First</option>
                 <option value="date-asc">Date: Oldest First</option>
@@ -277,17 +278,26 @@
 
         const sorted = [...bookings];
 
-        if (sortBy === "status-asc") {
+        if (sortBy === "status-alphabetical") {
+          // True alphabetical sort by status name
+          sorted.sort((a, b) => {
+            const statusA = (a.Status || "").toLowerCase();
+            const statusB = (b.Status || "").toLowerCase();
+            return statusA.localeCompare(statusB);
+          });
+        } else if (sortBy === "status-workflow") {
+          // Workflow order: Pending → Accepted → Returned → Returned Damaged → Cancelled
           sorted.sort((a, b) => {
             const orderA = statusOrder[a.Status] || 99;
             const orderB = statusOrder[b.Status] || 99;
             return orderA - orderB;
           });
         } else if (sortBy === "status-desc") {
+          // Reverse alphabetical sort
           sorted.sort((a, b) => {
-            const orderA = statusOrder[a.Status] || 99;
-            const orderB = statusOrder[b.Status] || 99;
-            return orderB - orderA;
+            const statusA = (a.Status || "").toLowerCase();
+            const statusB = (b.Status || "").toLowerCase();
+            return statusB.localeCompare(statusA);
           });
         } else if (sortBy === "date-desc") {
           sorted.sort((a, b) => {
