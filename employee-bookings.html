@@ -273,6 +273,47 @@
         }).join(', ');
       }
 
+      function getStatusOptions(currentStatus) {
+        const status = currentStatus || "Pending";
+        
+        // If already returned, only allow switching between Returned and Returned Damaged
+        if (status === "Returned" || status === "Returned Damaged") {
+          return `
+            <option value="Returned" ${status === "Returned" ? "selected" : ""}>Returned</option>
+            <option value="Returned Damaged" ${status === "Returned Damaged" ? "selected" : ""}>Returned Damaged</option>
+          `;
+        }
+        
+        // If accepted, remove Pending and Cancelled options
+        if (status === "Accepted") {
+          return `
+            <option value="Accepted" selected>Accepted</option>
+            <option value="Returned">Returned</option>
+            <option value="Returned Damaged">Returned Damaged</option>
+          `;
+        }
+        
+        // If pending, show all options
+        if (status === "Pending") {
+          return `
+            <option value="Pending" selected>Pending</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Returned">Returned</option>
+            <option value="Returned Damaged">Returned Damaged</option>
+            <option value="Cancelled">Cancelled</option>
+          `;
+        }
+        
+        // If cancelled, show all options (can reactivate)
+        return `
+          <option value="Pending">Pending</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Returned">Returned</option>
+          <option value="Returned Damaged">Returned Damaged</option>
+          <option value="Cancelled" ${status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+        `;
+      }
+
       function calculatePenalty(booking) {
         // Only calculate penalty if booking is not returned
         if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
@@ -429,11 +470,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div class="flex flex-col gap-2">
                         <select class="status-select w-full rounded-md border-gray-300 text-xs px-2 py-1" data-id="${b.id_booked}">
-                          <option value="Pending" ${b.Status === "Pending" ? "selected" : ""}>Pending</option>
-                          <option value="Accepted" ${b.Status === "Accepted" ? "selected" : ""}>Accepted</option>
-                          <option value="Returned" ${b.Status === "Returned" ? "selected" : ""}>Returned</option>
-                          <option value="Returned Damaged" ${b.Status === "Returned Damaged" ? "selected" : ""}>Returned Damaged</option>
-                          <option value="Cancelled" ${b.Status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                          ${getStatusOptions(b.Status)}
                         </select>
                         <button class="save-status px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs" data-id="${b.id_booked}">
                           Save
