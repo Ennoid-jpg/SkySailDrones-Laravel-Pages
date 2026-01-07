@@ -190,23 +190,11 @@
             </div>
             <div class="md:w-48">
               <select
-                id="status-filter"
-                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="Pending">Pending</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Returned">Returned</option>
-                <option value="Returned Damaged">Returned Damaged</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div class="md:w-48">
-              <select
                 id="sort-status"
                 class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
               >
                 <option value="">All Statuses</option>
+                <option value="workflow">Sort by Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Accepted">Accepted</option>
                 <option value="Returned">Returned</option>
@@ -423,9 +411,32 @@
       }
 
       function sortBookings(bookings, selectedStatus) {
-        if (!selectedStatus) return bookings;
+        const statusOrder = {
+          "Pending": 1,
+          "Accepted": 2,
+          "Returned": 3,
+          "Returned Damaged": 4,
+          "Cancelled": 5
+        };
 
-        // Filter and sort: selected status at top, then others
+        // If workflow order is selected or no status selected, use workflow order
+        if (!selectedStatus || selectedStatus === "workflow") {
+          const sorted = [...bookings];
+          sorted.sort((a, b) => {
+            const orderA = statusOrder[a.Status] || 99;
+            const orderB = statusOrder[b.Status] || 99;
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+            // If same status, sort by date (newest first)
+            const dateA = new Date(a.checkout_date || 0);
+            const dateB = new Date(b.checkout_date || 0);
+            return dateB - dateA;
+          });
+          return sorted;
+        }
+
+        // Filter and sort: selected status at top, then others in workflow order
         const selected = bookings.filter(b => b.Status === selectedStatus);
         const others = bookings.filter(b => b.Status !== selectedStatus);
         
@@ -436,14 +447,19 @@
           return dateB - dateA;
         });
         
-        // Sort others by date (newest first)
+        // Sort others by workflow order, then by date
         others.sort((a, b) => {
+          const orderA = statusOrder[a.Status] || 99;
+          const orderB = statusOrder[b.Status] || 99;
+          if (orderA !== orderB) {
+            return orderA - orderB;
+          }
           const dateA = new Date(a.checkout_date || 0);
           const dateB = new Date(b.checkout_date || 0);
           return dateB - dateA;
         });
 
-        // Return selected status first, then others
+        // Return selected status first, then others in workflow order
         return [...selected, ...others];
       }
 
@@ -634,21 +650,18 @@
       document.getElementById("filter-form").addEventListener("submit", (e) => {
         e.preventDefault();
         const search = document.getElementById("search-input").value.trim();
-        const status = document.getElementById("status-filter").value;
-        loadBookings({ search, status });
+        loadBookings({ search });
       });
 
       document.getElementById("clear-filters").addEventListener("click", () => {
         document.getElementById("search-input").value = "";
-        document.getElementById("status-filter").value = "";
         document.getElementById("sort-status").value = "";
         loadBookings();
       });
 
       document.getElementById("sort-status").addEventListener("change", () => {
         const search = document.getElementById("search-input").value.trim();
-        const status = document.getElementById("status-filter").value;
-        loadBookings({ search, status });
+        loadBookings({ search });
       });
 
       // Status update and delete handler
