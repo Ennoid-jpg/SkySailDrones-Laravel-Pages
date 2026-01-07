@@ -304,13 +304,16 @@
           `;
         }
         
-        // If cancelled, show all options (can reactivate)
+        // If cancelled, lock the status (no further changes)
+        if (status === "Cancelled") {
+          return `
+            <option value="Cancelled" selected>Cancelled</option>
+          `;
+        }
+
+        // Fallback: show current status as a single locked option
         return `
-          <option value="Pending">Pending</option>
-          <option value="Accepted">Accepted</option>
-          <option value="Returned">Returned</option>
-          <option value="Returned Damaged">Returned Damaged</option>
-          <option value="Cancelled" ${status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+          <option value="${status}" selected>${status}</option>
         `;
       }
 
@@ -700,5 +703,4 @@
     </script>
   </body>
 </html>
-
 
