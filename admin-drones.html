@@ -239,10 +239,20 @@
       }
 
       function imageUrlFromPath(path) {
-        if (!path) return "./images/drone.png";
-        // Path is relative to Laravel public; we can mirror the same images in GitHub if needed.
+        if (!path) return API_BASE + "/uploads/default-drone.png";
         if (path.startsWith("http")) return path;
-        return API_BASE + "/" + path;
+        
+        // Extract filename from path
+        const filename = path.split("/").pop();
+        
+        // Use serve-image.php to handle multiple possible locations
+        // This ensures images work regardless of where they're stored
+        if (path.startsWith("drones/") || path.startsWith("storage/app/public/drones/") || path.startsWith("drone-images/")) {
+          return API_BASE + "/serve-image.php?path=" + encodeURIComponent(path);
+        }
+        
+        // For any other path, try serve-image.php
+        return API_BASE + "/serve-image.php?path=" + encodeURIComponent(path);
       }
 
       async function fetchJson(url, options = {}) {
