@@ -17,6 +17,53 @@
       body {
         font-family: "Montserrat", sans-serif;
       }
+      /* Mobile bottom navigation */
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 0.5rem 0;
+        z-index: 50;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        text-decoration: none;
+        color: #6b7280;
+        font-size: 0.75rem;
+        transition: color 0.2s;
+      }
+      .mobile-nav-item.active {
+        color: #9333ea;
+      }
+      .mobile-nav-item svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+      /* Add padding to main content to account for bottom nav */
+      @media (max-width: 768px) {
+        body {
+          padding-bottom: 4.5rem;
+        }
+        header .flex.items-center.gap-4 {
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+        header .flex.items-center.gap-4 > * {
+          font-size: 0.75rem;
+          padding: 0.5rem 0.75rem;
+        }
+        #user-label {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-50 text-gray-900 min-h-screen">
@@ -40,24 +87,25 @@
             <a href="./client-dashboard.html" class="flex items-center gap-2">
               <img src="./images/logolight.png" alt="SkySail Logo" class="h-10 w-auto" />
             </a>
-            <div class="flex items-center gap-4 text-sm">
+            <div class="flex items-center gap-2 sm:gap-4 text-sm">
               <button
                 type="button"
                 onclick="window.history.back()"
-                class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm transition"
+                class="hidden sm:inline-block px-3 sm:px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs sm:text-sm transition"
               >
                 Back
               </button>
               <a
                 href="./drones.html"
-                class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                class="px-3 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-xs sm:text-sm hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                Browse Drones
+                <span class="hidden sm:inline">Browse Drones</span>
+                <span class="sm:hidden">Drones</span>
               </a>
-              <span id="user-label" class="text-gray-600"></span>
+              <span id="user-label" class="hidden lg:inline text-gray-600 text-xs sm:text-sm"></span>
               <button
                 onclick="logoutAndRedirect('./login.html')"
-                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition"
+                class="hidden sm:inline-block px-3 sm:px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-xs sm:text-sm transition"
               >
                 Logout
               </button>
@@ -67,7 +115,22 @@
       </header>
 
       <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Bookings</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">My Bookings</h2>
+          <div class="w-full sm:w-48">
+            <select
+              id="sort-status"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Returned">Returned</option>
+              <option value="Returned Damaged">Returned Damaged</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
 
         <div id="bookings-list" class="space-y-4">
           <div class="text-center text-gray-500 py-12">Loading bookings...</div>
@@ -167,6 +230,31 @@
         return data;
       }
 
+      function sortBookings(bookings, selectedStatus) {
+        if (!selectedStatus) return bookings;
+
+        // Filter and sort: selected status at top, then others
+        const selected = bookings.filter(b => b.Status === selectedStatus);
+        const others = bookings.filter(b => b.Status !== selectedStatus);
+        
+        // Sort selected status by date (newest first)
+        selected.sort((a, b) => {
+          const dateA = new Date(a.checkout_date || 0);
+          const dateB = new Date(b.checkout_date || 0);
+          return dateB - dateA;
+        });
+        
+        // Sort others by date (newest first)
+        others.sort((a, b) => {
+          const dateA = new Date(a.checkout_date || 0);
+          const dateB = new Date(b.checkout_date || 0);
+          return dateB - dateA;
+        });
+
+        // Return selected status first, then others
+        return [...selected, ...others];
+      }
+
       async function cancelBooking(bookingId) {
         if (!confirm("Are you sure you want to cancel this booking?")) {
           return;
@@ -218,7 +306,11 @@
           // Get all bookings and filter by user
           const data = await fetchJson(BOOKINGS_API + "?action=list");
           const allBookings = data.bookings || [];
-          const userBookings = allBookings.filter((b) => b.id_user == userId);
+          let userBookings = allBookings.filter((b) => b.id_user == userId);
+
+          // Apply status sorting
+          const selectedStatus = document.getElementById("sort-status")?.value || "";
+          userBookings = sortBookings(userBookings, selectedStatus);
 
           if (userBookings.length === 0) {
             bookingsList.innerHTML = `
@@ -292,7 +384,7 @@
         }
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", () => {
         const user = getCurrentUser();
         if (user) {
           const userLabel = document.getElementById("user-label");
@@ -301,9 +393,54 @@
           }
         }
 
+        // Add event listener for status filter
+        const sortStatusSelect = document.getElementById("sort-status");
+        if (sortStatusSelect) {
+          sortStatusSelect.addEventListener("change", () => {
+            loadBookings();
+          });
+        }
+
         loadBookings();
       });
     </script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav md:hidden">
+      <div class="flex justify-around items-center">
+        <a href="./client-dashboard.html" class="mobile-nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span>Home</span>
+        </a>
+        <a href="./drones.html" class="mobile-nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+          <span>Drones</span>
+        </a>
+        <a href="./cart.html" class="mobile-nav-item relative">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          <span>Cart</span>
+          <span id="mobile-cart-count" class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
+        </a>
+        <a href="./bookings.html" class="mobile-nav-item active">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          <span>Bookings</span>
+        </a>
+        <a href="./profile.html" class="mobile-nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </div>
+    </nav>
   </body>
 </html>
 
