@@ -118,6 +118,18 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 class="text-2xl font-bold text-gray-900">My Bookings</h2>
           <div class="w-full sm:w-48">
+            <select
+              id="sort-status"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            >
+              
+              <option value="workflow">Sort by Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Returned">Returned</option>
+              <option value="Returned Damaged">Returned Damaged</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
           </div>
         </div>
 
@@ -245,31 +257,15 @@
           return sorted;
         }
 
-        // Filter and sort: selected status at top, then others in workflow order
-        const selected = bookings.filter(b => b.Status === selectedStatus);
-        const others = bookings.filter(b => b.Status !== selectedStatus);
-        
-        // Sort selected status by date (newest first)
-        selected.sort((a, b) => {
+        // For a specific status on client side, act as a FILTER:
+        // only show bookings with that exact status, sorted by date (newest first)
+        const filtered = bookings.filter((b) => b.Status === selectedStatus);
+        filtered.sort((a, b) => {
           const dateA = new Date(a.checkout_date || 0);
           const dateB = new Date(b.checkout_date || 0);
           return dateB - dateA;
         });
-        
-        // Sort others by workflow order, then by date
-        others.sort((a, b) => {
-          const orderA = statusOrder[a.Status] || 99;
-          const orderB = statusOrder[b.Status] || 99;
-          if (orderA !== orderB) {
-            return orderA - orderB;
-          }
-          const dateA = new Date(a.checkout_date || 0);
-          const dateB = new Date(b.checkout_date || 0);
-          return dateB - dateA;
-        });
-
-        // Return selected status first, then others in workflow order
-        return [...selected, ...others];
+        return filtered;
       }
 
       async function cancelBooking(bookingId) {
@@ -460,5 +456,4 @@
     </nav>
   </body>
 </html>
-
 
