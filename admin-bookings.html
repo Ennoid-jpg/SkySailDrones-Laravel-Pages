@@ -227,8 +227,9 @@
       }
 
       function calculatePenalty(booking) {
-        // Only calculate penalty if booking is not returned
-        if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled") {
+        // Only calculate penalty for Accepted bookings that are overdue
+        // Pending and Cancelled bookings never incur penalties
+        if (booking.Status === "Returned" || booking.Status === "Returned Damaged" || booking.Status === "Cancelled" || booking.Status === "Pending") {
           return { penalty: 0, daysOverdue: 0 };
         }
 
