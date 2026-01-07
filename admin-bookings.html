@@ -70,19 +70,6 @@
                 class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
               />
             </div>
-            <div class="w-full md:w-52">
-              <select
-                id="status-filter"
-                class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="Pending">Pending</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Returned">Returned</option>
-                <option value="Returned Damaged">Returned Damaged</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
             <div class="w-full md:w-48">
               <select
                 id="sort-status"
@@ -302,9 +289,9 @@
           const data = await fetchJson(BOOKINGS_API + "?" + query.toString());
           let bookings = data.bookings || [];
           
-          // Apply sorting
-          const sortBy = document.getElementById("sort-status")?.value || "";
-          bookings = sortBookings(bookings, sortBy);
+          // Apply status sorting/filtering
+          const selectedStatus = document.getElementById("sort-status")?.value || "";
+          bookings = sortBookings(bookings, selectedStatus);
 
           if (bookings.length === 0) {
             tbody.innerHTML =
@@ -395,21 +382,18 @@
         document.getElementById("filter-form").addEventListener("submit", (e) => {
           e.preventDefault();
           const search = document.getElementById("search-input").value.trim();
-          const status = document.getElementById("status-filter").value;
-          loadBookings({ search, status });
+          loadBookings({ search });
         });
 
         document.getElementById("clear-filters").addEventListener("click", () => {
           document.getElementById("search-input").value = "";
-          document.getElementById("status-filter").value = "";
           document.getElementById("sort-status").value = "";
           loadBookings();
         });
 
         document.getElementById("sort-status").addEventListener("change", () => {
           const search = document.getElementById("search-input").value.trim();
-          const status = document.getElementById("status-filter").value;
-          loadBookings({ search, status });
+          loadBookings({ search });
         });
 
         document.getElementById("bookings-tbody").addEventListener("click", (e) => {
