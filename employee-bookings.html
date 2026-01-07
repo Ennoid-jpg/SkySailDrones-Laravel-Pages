@@ -677,7 +677,7 @@
         loadBookings({ search, status });
       });
 
-      // Status update handler
+      // Status update and delete handler
       document.getElementById("bookings-tbody").addEventListener("click", (e) => {
         if (e.target.classList.contains("save-status")) {
           const id = e.target.getAttribute("data-id");
