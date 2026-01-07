@@ -167,6 +167,36 @@
         return data;
       }
 
+      async function cancelBooking(bookingId) {
+        if (!confirm("Are you sure you want to cancel this booking?")) {
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          formData.append("action", "update_status");
+          formData.append("id_booked", bookingId);
+          formData.append("status", "Cancelled");
+
+          const response = await fetch(BOOKINGS_API, {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert("Booking cancelled successfully.");
+            loadBookings(); // Reload bookings to reflect the change
+          } else {
+            alert(data.message || "Failed to cancel booking.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("An error occurred while cancelling the booking.");
+        }
+      }
+
       async function loadBookings() {
         const bookingsList = document.getElementById("bookings-list");
         const user = getCurrentUser();
@@ -234,6 +264,14 @@
                   <span class="px-4 py-2 rounded-full text-sm font-semibold ${getStatusClass(booking.Status)}">
                     ${booking.Status}
                   </span>
+                  ${booking.Status === 'Pending' ? `
+                    <button
+                      onclick="cancelBooking(${booking.id_booked})"
+                      class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition transform hover:scale-105"
+                    >
+                      Cancel Booking
+                    </button>
+                  ` : ''}
                   <div class="text-right">
                     <p class="text-lg font-semibold text-gray-700">Base: ${formatMoney(booking.price)}</p>
                     ${penaltyInfo.penalty > 0 ? `<p class="text-lg font-semibold text-red-600">Penalty: ${formatMoney(penaltyInfo.penalty)}</p>` : ''}
