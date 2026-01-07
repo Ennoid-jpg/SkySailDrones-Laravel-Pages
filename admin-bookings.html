@@ -88,12 +88,12 @@
                 id="sort-status"
                 class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
               >
-                <option value="">Sort by Status</option>
-                <option value="status-alphabetical">Status: A-Z (Alphabetical)</option>
-                <option value="status-workflow">Status: Workflow Order</option>
-                <option value="status-desc">Status: Z-A</option>
-                <option value="date-desc">Date: Newest First</option>
-                <option value="date-asc">Date: Oldest First</option>
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Returned">Returned</option>
+                <option value="Returned Damaged">Returned Damaged</option>
+                <option value="Cancelled">Cancelled</option>
               </select>
             </div>
             <button
@@ -266,55 +266,29 @@
         return data;
       }
 
-      function sortBookings(bookings, sortBy) {
-        if (!sortBy) return bookings;
+      function sortBookings(bookings, selectedStatus) {
+        if (!selectedStatus) return bookings;
 
-        const statusOrder = {
-          "Pending": 1,
-          "Accepted": 2,
-          "Returned": 3,
-          "Returned Damaged": 4,
-          "Cancelled": 5
-        };
+        // Filter and sort: selected status at top, then others
+        const selected = bookings.filter(b => b.Status === selectedStatus);
+        const others = bookings.filter(b => b.Status !== selectedStatus);
+        
+        // Sort selected status by date (newest first)
+        selected.sort((a, b) => {
+          const dateA = new Date(a.checkout_date || 0);
+          const dateB = new Date(b.checkout_date || 0);
+          return dateB - dateA;
+        });
+        
+        // Sort others by date (newest first)
+        others.sort((a, b) => {
+          const dateA = new Date(a.checkout_date || 0);
+          const dateB = new Date(b.checkout_date || 0);
+          return dateB - dateA;
+        });
 
-        const sorted = [...bookings];
-
-        if (sortBy === "status-alphabetical") {
-          // True alphabetical sort by status name
-          sorted.sort((a, b) => {
-            const statusA = (a.Status || "").toLowerCase();
-            const statusB = (b.Status || "").toLowerCase();
-            return statusA.localeCompare(statusB);
-          });
-        } else if (sortBy === "status-workflow") {
-          // Workflow order: Pending → Accepted → Returned → Returned Damaged → Cancelled
-          sorted.sort((a, b) => {
-            const orderA = statusOrder[a.Status] || 99;
-            const orderB = statusOrder[b.Status] || 99;
-            return orderA - orderB;
-          });
-        } else if (sortBy === "status-desc") {
-          // Reverse alphabetical sort
-          sorted.sort((a, b) => {
-            const statusA = (a.Status || "").toLowerCase();
-            const statusB = (b.Status || "").toLowerCase();
-            return statusB.localeCompare(statusA);
-          });
-        } else if (sortBy === "date-desc") {
-          sorted.sort((a, b) => {
-            const dateA = new Date(a.checkout_date || 0);
-            const dateB = new Date(b.checkout_date || 0);
-            return dateB - dateA;
-          });
-        } else if (sortBy === "date-asc") {
-          sorted.sort((a, b) => {
-            const dateA = new Date(a.checkout_date || 0);
-            const dateB = new Date(b.checkout_date || 0);
-            return dateA - dateB;
-          });
-        }
-
-        return sorted;
+        // Return selected status first, then others
+        return [...selected, ...others];
       }
 
       async function loadBookings(params = {}) {
