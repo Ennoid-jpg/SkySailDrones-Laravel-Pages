@@ -76,6 +76,7 @@
                 class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
               >
                 <option value="">All Statuses</option>
+                <option value="workflow">Sort by Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Accepted">Accepted</option>
                 <option value="Returned">Returned</option>
@@ -254,9 +255,32 @@
       }
 
       function sortBookings(bookings, selectedStatus) {
-        if (!selectedStatus) return bookings;
+        const statusOrder = {
+          "Pending": 1,
+          "Accepted": 2,
+          "Returned": 3,
+          "Returned Damaged": 4,
+          "Cancelled": 5
+        };
 
-        // Filter and sort: selected status at top, then others
+        // If workflow order is selected or no status selected, use workflow order
+        if (!selectedStatus || selectedStatus === "workflow") {
+          const sorted = [...bookings];
+          sorted.sort((a, b) => {
+            const orderA = statusOrder[a.Status] || 99;
+            const orderB = statusOrder[b.Status] || 99;
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+            // If same status, sort by date (newest first)
+            const dateA = new Date(a.checkout_date || 0);
+            const dateB = new Date(b.checkout_date || 0);
+            return dateB - dateA;
+          });
+          return sorted;
+        }
+
+        // Filter and sort: selected status at top, then others in workflow order
         const selected = bookings.filter(b => b.Status === selectedStatus);
         const others = bookings.filter(b => b.Status !== selectedStatus);
         
@@ -267,14 +291,19 @@
           return dateB - dateA;
         });
         
-        // Sort others by date (newest first)
+        // Sort others by workflow order, then by date
         others.sort((a, b) => {
+          const orderA = statusOrder[a.Status] || 99;
+          const orderB = statusOrder[b.Status] || 99;
+          if (orderA !== orderB) {
+            return orderA - orderB;
+          }
           const dateA = new Date(a.checkout_date || 0);
           const dateB = new Date(b.checkout_date || 0);
           return dateB - dateA;
         });
 
-        // Return selected status first, then others
+        // Return selected status first, then others in workflow order
         return [...selected, ...others];
       }
 
