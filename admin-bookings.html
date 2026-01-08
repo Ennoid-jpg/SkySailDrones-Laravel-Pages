@@ -192,13 +192,11 @@
           `;
         }
         
-        // If pending, show all options
+        // If pending, only allow Accepted or Cancelled (cannot return items that haven't been accepted yet)
         if (status === "Pending") {
           return `
             <option value="Pending" selected>Pending</option>
             <option value="Accepted">Accepted</option>
-            <option value="Returned">Returned</option>
-            <option value="Returned Damaged">Returned Damaged</option>
             <option value="Cancelled">Cancelled</option>
           `;
         }
