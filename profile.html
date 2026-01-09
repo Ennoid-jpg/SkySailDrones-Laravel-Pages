@@ -143,7 +143,7 @@
                       src=""
                       alt="Profile"
                       class="w-full h-full object-cover"
-                      onerror="this.src='https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg'"
+                      onerror="this.src='https://skysaildrone.solof.shop/uploads/default-avatar-icon-of-social-media-user-vector.jpg?t=' + Date.now()"
                     />
                   </div>
                   <label
@@ -331,7 +331,14 @@
         if (!pic) return API_BASE + "/" + DEFAULT_AVATAR_PATH;
         if (pic.startsWith("http")) return pic;
         
-        // Use serve-image.php to handle multiple possible locations
+        // For default avatar, always use direct path from public/uploads
+        if (pic === DEFAULT_AVATAR_PATH || pic.includes("default-avatar-icon-of-social-media-user-vector.jpg")) {
+          // Use direct path to public/uploads directory
+          return API_BASE + "/" + DEFAULT_AVATAR_PATH;
+        }
+        
+        // For uploaded profile pictures (not default), use serve-image.php
+        // These are stored in profile_pictures directory
         return API_BASE + "/serve-image.php?path=" + encodeURIComponent(pic);
       }
 
@@ -476,11 +483,16 @@
           // Update preview and button state
           currentProfilePicture = data.user.profile_picture;
           const defaultPicUrl = getProfilePicUrl(data.user.profile_picture);
-          document.getElementById("profile-preview").src = defaultPicUrl;
+          // Force reload by adding timestamp to bypass cache
+          const previewImg = document.getElementById("profile-preview");
+          previewImg.src = defaultPicUrl + "?t=" + Date.now();
           updateRemoveButtonState();
           
           // Clear file input
           document.getElementById("profile-picture-input").value = "";
+
+          // Reload profile to ensure everything is in sync
+          await loadProfile();
 
           alert("Profile picture removed successfully!");
         } catch (err) {
