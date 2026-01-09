@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>SkySail Drones - Resend Verification Email</title>
+        <link rel="icon" href="./images/image-removebg-preview 2.png">
+
+        <!-- Fonts - Montserrat -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Montserrat', 'sans-serif'],
+                        },
+                    }
+                }
+            }
+        </script>
+        
+        <style>
+            body {
+                font-family: 'Montserrat', sans-serif;
+            }
+            .auth-gradient {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .glass-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+        </style>
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style="background-image: url('./images/Signin.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+            <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+
+            <div class="absolute top-6 left-6 z-10">
+                <a href="./index.html" class="flex items-center space-x-2 text-white hover:text-white/80 transition">
+                    <img src="./images/logolight.png" alt="SkySail Logo" class="h-14 w-auto">
+                </a>
+            </div>
+
+            <div class="max-w-md w-full relative z-10">
+                <div class="bg-white rounded-lg shadow-2xl p-10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Resend Verification Email</h2>
+                        <p class="text-gray-600">Enter your email and we'll send you a verification link</p>
+                    </div>
+
+                    <div class="mb-4 text-sm text-gray-600 mt-6">
+                        Didn't receive the verification email? No problem. Just let us know your email address and we will email you a verification link that will allow you to verify your account.
+                    </div>
+
+                    <form id="resend-verification-form" class="mt-6 space-y-6">
+                        <!-- Email Address -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input id="email" 
+                                 class="block mt-2 w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500" 
+                                 type="email" 
+                                 name="email" 
+                                 required 
+                                 autofocus
+                                 placeholder="Enter your email address" />
+                        </div>
+
+                        <div id="message" class="text-sm min-h-[1.5rem]"></div>
+
+                        <div class="flex items-center justify-end">
+                            <button type="submit" class="w-full justify-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Resend Verification Email
+                            </button>
+                        </div>
+
+                        <!-- Back to Login -->
+                        <div class="text-center pt-4">
+                            <a href="./login.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition">
+                                ← Back to Login
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const API_BASE = 'https://skysaildrone.solof.shop';
+            const VERIFY_EMAIL_API = API_BASE + '/api-email-verify.php';
+
+            async function fetchJson(url, options = {}) {
+                try {
+                    const res = await fetch(url, options);
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.message || `Request failed with status ${res.status}`);
+                    }
+                    return data;
+                } catch (err) {
+                    // Handle network errors
+                    if (err instanceof TypeError && err.message === 'Failed to fetch') {
+                        throw new Error('Network error: Could not connect to server. Please check your internet connection and try again.');
+                    }
+                    throw err;
+                }
+            }
+
+            document.getElementById('resend-verification-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                const messageEl = document.getElementById('message');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+
+                if (!email) {
+                    messageEl.textContent = 'Please enter your email address.';
+                    messageEl.className = 'text-sm text-red-600 min-h-[1.5rem]';
+                    return;
+                }
+
+                messageEl.textContent = 'Processing...';
+                messageEl.className = 'text-sm text-gray-600 min-h-[1.5rem]';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'send');
+                    formData.append('email', email);
+
+                    const data = await fetchJson(VERIFY_EMAIL_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString(),
+                    });
+
+                    // Show success message
+                    messageEl.innerHTML = `
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p class="text-green-800 font-semibold mb-2">✓ Verification Email Sent!</p>
+                            <p class="text-green-700 text-sm mb-2">${data.message}</p>
+                            <p class="text-green-600 text-xs mt-2">Please check your email inbox (and spam folder) for the verification link. The link will expire in 24 hours.</p>
+                        </div>
+                    `;
+                    messageEl.className = 'text-sm min-h-[1.5rem]';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Resend Verification Email';
+                } catch (err) {
+                    console.error('Resend verification error:', err);
+                    messageEl.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <p class="text-red-800 font-semibold">Error</p>
+                            <p class="text-red-700 text-sm mt-1">${err.message || 'Failed to send verification email.'}</p>
+                            <p class="text-red-600 text-xs mt-2">Please check your connection and try again.</p>
+                        </div>
+                    `;
+                    messageEl.className = 'text-sm min-h-[1.5rem]';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Resend Verification Email';
+                }
+            });
+        </script>
+    </body>
+</html>
