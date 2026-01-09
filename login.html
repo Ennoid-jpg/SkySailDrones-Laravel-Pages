@@ -117,8 +117,9 @@
                             <div id="loginMessage" class="text-sm text-center text-gray-600"></div>
 
                             <!-- Resend Verification Email Button (hidden by default) -->
-                            <div id="resendVerificationContainer" class="hidden mt-3">
-                                <button type="button" id="resendVerificationBtn" class="w-full text-sm text-blue-600 hover:text-blue-800 font-medium transition underline">
+                            <div id="resendVerificationContainer" class="hidden mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <p class="text-xs text-gray-600 mb-2 text-center">Didn't receive the verification email?</p>
+                                <button type="button" id="resendVerificationBtn" class="w-full text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
                                     Resend Verification Email
                                 </button>
                                 <div id="resendMessage" class="text-xs text-center mt-2"></div>
@@ -216,8 +217,15 @@
                             
                             // Store email and show resend button
                             unverifiedEmail = email;
-                            document.getElementById('resendVerificationContainer').classList.remove('hidden');
-                            document.getElementById('resendMessage').textContent = '';
+                            const resendContainer = document.getElementById('resendVerificationContainer');
+                            if (resendContainer) {
+                                resendContainer.classList.remove('hidden');
+                                resendContainer.style.display = 'block';
+                            }
+                            const resendMsg = document.getElementById('resendMessage');
+                            if (resendMsg) {
+                                resendMsg.textContent = '';
+                            }
                             return;
                         }
                         
@@ -334,12 +342,23 @@
                         
                         // Store email and show resend button
                         unverifiedEmail = email;
-                        document.getElementById('resendVerificationContainer').classList.remove('hidden');
-                        document.getElementById('resendMessage').textContent = '';
+                        const resendContainer = document.getElementById('resendVerificationContainer');
+                        if (resendContainer) {
+                            resendContainer.classList.remove('hidden');
+                            resendContainer.style.display = 'block';
+                        }
+                        const resendMsg = document.getElementById('resendMessage');
+                        if (resendMsg) {
+                            resendMsg.textContent = '';
+                        }
                     } else {
                         messageEl.textContent = error.message || 'Login failed. Please try again.';
                         // Hide resend button for non-verification errors
-                        document.getElementById('resendVerificationContainer').classList.add('hidden');
+                        const resendContainer = document.getElementById('resendVerificationContainer');
+                        if (resendContainer) {
+                            resendContainer.classList.add('hidden');
+                            resendContainer.style.display = 'none';
+                        }
                     }
                     
                     messageEl.classList.remove('text-gray-600', 'text-green-600');
