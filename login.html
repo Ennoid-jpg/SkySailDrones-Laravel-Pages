@@ -106,6 +106,14 @@
                                 </a>
                             </div>
 
+                            <!-- Resend Verification Link -->
+                            <div class="text-right">
+                                <a class="text-sm text-blue-600 hover:text-blue-800 font-medium transition" 
+                                   href="./resend-verification.html">
+                                    Need to resend verification email? >
+                                </a>
+                            </div>
+
                             <!-- Submit Button -->
                             <div>
                                 <button type="submit" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition">
@@ -115,15 +123,6 @@
 
                             <!-- Status / Error Message -->
                             <div id="loginMessage" class="text-sm text-center text-gray-600"></div>
-
-                            <!-- Resend Verification Email Button (hidden by default) -->
-                            <div id="resendVerificationContainer" class="hidden mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                <p class="text-xs text-gray-600 mb-2 text-center">Didn't receive the verification email?</p>
-                                <button type="button" id="resendVerificationBtn" class="w-full text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
-                                    Resend Verification Email
-                                </button>
-                                <div id="resendMessage" class="text-xs text-center mt-2"></div>
-                            </div>
 
                             <!-- Register Link -->
                             <div class="text-center pt-4">
@@ -144,10 +143,6 @@
             // Hostinger API base and endpoint
             const API_BASE = 'https://skysaildrone.solof.shop';
             const LOGIN_ENDPOINT = API_BASE + '/api-login.php';
-            const VERIFY_EMAIL_API = API_BASE + '/api-email-verify.php';
-            
-            // Store email for resend verification
-            let unverifiedEmail = null;
 
             function togglePassword() {
                 const passwordInput = document.getElementById('password');
@@ -211,21 +206,16 @@
                                                    errorMessage.toLowerCase().includes('expired');
                         
                         if (isVerificationError) {
-                            messageEl.textContent = 'Please try again. Please verify your email address before logging in. Check your inbox for the verification link.';
+                            messageEl.innerHTML = `
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                                    <p class="text-red-800 font-semibold mb-1">Email Verification Required</p>
+                                    <p class="text-red-700 text-sm">Please verify your email address before logging in. Check your inbox for the verification link.</p>
+                                    <a href="./resend-verification.html" class="text-blue-600 hover:text-blue-800 text-sm font-medium underline mt-2 inline-block">
+                                        Resend Verification Email →
+                                    </a>
+                                </div>
+                            `;
                             messageEl.classList.remove('text-gray-600', 'text-green-600');
-                            messageEl.classList.add('text-red-600');
-                            
-                            // Store email and show resend button
-                            unverifiedEmail = email;
-                            const resendContainer = document.getElementById('resendVerificationContainer');
-                            if (resendContainer) {
-                                resendContainer.classList.remove('hidden');
-                                resendContainer.style.display = 'block';
-                            }
-                            const resendMsg = document.getElementById('resendMessage');
-                            if (resendMsg) {
-                                resendMsg.textContent = '';
-                            }
                             return;
                         }
                         
@@ -338,100 +328,22 @@
                                                errorMsg.toLowerCase().includes('expired');
                     
                     if (isVerificationError) {
-                        messageEl.textContent = 'Please try again. Please verify your email address before logging in. Check your inbox for the verification link.';
-                        
-                        // Store email and show resend button
-                        unverifiedEmail = email;
-                        const resendContainer = document.getElementById('resendVerificationContainer');
-                        if (resendContainer) {
-                            resendContainer.classList.remove('hidden');
-                            resendContainer.style.display = 'block';
-                        }
-                        const resendMsg = document.getElementById('resendMessage');
-                        if (resendMsg) {
-                            resendMsg.textContent = '';
-                        }
+                        messageEl.innerHTML = `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                                <p class="text-red-800 font-semibold mb-1">Email Verification Required</p>
+                                <p class="text-red-700 text-sm">Please verify your email address before logging in. Check your inbox for the verification link.</p>
+                                <a href="./resend-verification.html" class="text-blue-600 hover:text-blue-800 text-sm font-medium underline mt-2 inline-block">
+                                    Resend Verification Email →
+                                </a>
+                            </div>
+                        `;
                     } else {
                         messageEl.textContent = error.message || 'Login failed. Please try again.';
-                        // Hide resend button for non-verification errors
-                        const resendContainer = document.getElementById('resendVerificationContainer');
-                        if (resendContainer) {
-                            resendContainer.classList.add('hidden');
-                            resendContainer.style.display = 'none';
-                        }
                     }
                     
                     messageEl.classList.remove('text-gray-600', 'text-green-600');
                     messageEl.classList.add('text-red-600');
                 }
-            });
-
-            // Handle resend verification email
-            document.getElementById('resendVerificationBtn').addEventListener('click', async function() {
-                if (!unverifiedEmail) {
-                    unverifiedEmail = document.getElementById('email').value.trim();
-                }
-                
-                if (!unverifiedEmail) {
-                    document.getElementById('resendMessage').textContent = 'Please enter your email address first.';
-                    document.getElementById('resendMessage').classList.remove('text-green-600');
-                    document.getElementById('resendMessage').classList.add('text-red-600');
-                    return;
-                }
-                
-                const resendBtn = document.getElementById('resendVerificationBtn');
-                const resendMessage = document.getElementById('resendMessage');
-                
-                resendBtn.disabled = true;
-                resendBtn.textContent = 'Sending...';
-                resendMessage.textContent = '';
-                
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'send');
-                    formData.append('email', unverifiedEmail);
-                    
-                    const response = await fetch(VERIFY_EMAIL_API, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: formData.toString(),
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        resendMessage.textContent = 'Verification email sent! Please check your inbox.';
-                        resendMessage.classList.remove('text-red-600');
-                        resendMessage.classList.add('text-green-600');
-                        resendBtn.textContent = 'Email Sent ✓';
-                        
-                        // Hide button after 5 seconds
-                        setTimeout(() => {
-                            resendBtn.textContent = 'Resend Verification Email';
-                            resendBtn.disabled = false;
-                        }, 5000);
-                    } else {
-                        resendMessage.textContent = data.message || 'Failed to send verification email. Please try again.';
-                        resendMessage.classList.remove('text-green-600');
-                        resendMessage.classList.add('text-red-600');
-                        resendBtn.textContent = 'Resend Verification Email';
-                        resendBtn.disabled = false;
-                    }
-                } catch (error) {
-                    resendMessage.textContent = 'Failed to send verification email. Please try again.';
-                    resendMessage.classList.remove('text-green-600');
-                    resendMessage.classList.add('text-red-600');
-                    resendBtn.textContent = 'Resend Verification Email';
-                    resendBtn.disabled = false;
-                }
-            });
-            
-            // Hide resend button when user starts typing or changes email
-            document.getElementById('email').addEventListener('input', function() {
-                document.getElementById('resendVerificationContainer').classList.add('hidden');
-                unverifiedEmail = null;
             });
         </script>
     </body>
