@@ -62,11 +62,16 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo - Light logo for dark background -->
                 <div class="flex items-center">
-                    <img src="./images/logolight.png" alt="SkySail Logo" class="h-12 w-auto">
+                    <a href="./index.html" class="flex items-center">
+                        <img src="./images/logolight.png" alt="SkySail Logo" class="h-12 w-auto">
+                    </a>
                 </div>
 
                 <!-- Navigation Links - Center -->
                 <div class="hidden lg:flex items-center space-x-6">
+                    <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                        Consumer
+                    </a>
                     <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
                         Enterprise
                     </a>
@@ -77,12 +82,20 @@
                         Cinematic
                     </a>
                     <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">Explore</a>
+                    <a href="./login.html" class="text-white hover:text-gray-300 transition font-normal text-sm">Support</a>
                 </div>
 
                 <!-- Right Side Icons and Button -->
                 <div class="flex items-center space-x-3">
+                    <!-- Search Icon -->
+                    <button class="text-white hover:text-gray-300 transition p-2" aria-label="Search">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+
                     <!-- User/Login Icon -->
-                    <a href="./login.html" class="text-white hover:text-gray-300 transition p-2" aria-label="Account">
+                    <a id="user-icon-link" href="./login.html" class="text-white hover:text-gray-300 transition p-2" aria-label="Account">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
@@ -119,7 +132,7 @@
                     <a href="./drones.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
                         Explore
                     </a>
-                    <a href="./login.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
+                    <a id="mobile-login-link" href="./login.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
                         Login
                     </a>
                     <a href="./cart.html" class="text-white hover:text-gray-300 transition font-normal text-sm">
@@ -157,7 +170,49 @@
         </a>
     </div>
     </div>
+    <script src="./auth-role.js"></script>
     <script>
+        // Check if user is logged in
+        function checkLoginStatus() {
+            const user = getCurrentUser();
+            const isLoggedIn = user && (user.id_user || user.id || user.username);
+            
+            if (isLoggedIn) {
+                // Update desktop user icon to link to profile
+                const userIconLink = document.getElementById('user-icon-link');
+                if (userIconLink) {
+                    userIconLink.href = './profile.html';
+                }
+                
+                // Update mobile menu to show Logout
+                const mobileLoginLink = document.getElementById('mobile-login-link');
+                if (mobileLoginLink) {
+                    mobileLoginLink.textContent = 'Logout';
+                    mobileLoginLink.href = '#';
+                    mobileLoginLink.onclick = function(e) {
+                        e.preventDefault();
+                        logoutAndRedirect('./login.html');
+                    };
+                }
+            } else {
+                // User not logged in - keep default links
+                const userIconLink = document.getElementById('user-icon-link');
+                if (userIconLink) {
+                    userIconLink.href = './login.html';
+                }
+                
+                const mobileLoginLink = document.getElementById('mobile-login-link');
+                if (mobileLoginLink) {
+                    mobileLoginLink.textContent = 'Login';
+                    mobileLoginLink.href = './login.html';
+                    mobileLoginLink.onclick = null;
+                }
+            }
+        }
+        
+        // Check login status on page load
+        checkLoginStatus();
+        
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -165,6 +220,15 @@
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Ensure logo link doesn't logout - just navigate to index
+        const logoLink = document.querySelector('nav a[href="./index.html"]');
+        if (logoLink) {
+            logoLink.addEventListener('click', function(e) {
+                // Just navigate normally - no logout
+                // The href will handle navigation
             });
         }
     </script>
